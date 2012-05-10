@@ -34,3 +34,4 @@ http://192.168.1.2/play?v=/home/user/myvideo.mp4
 * [Slave mode Mplayer](http://www.mplayerhq.hu/DOCS/HTML/en/MPlayer.html#slave-mode)
 * [Slave mode commands](http://www.mplayerhq.hu/DOCS/tech/slave.txt)
 * Use a named pipe to issue commands (mkfifo)
+* mplayer -noconfig all -noconsolecontrols -quiet -idle -slave -fs -zoom -input file=/tmp/mplayer.fifo
