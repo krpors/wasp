@@ -31,9 +31,6 @@ func (p Percentage) Clamped() float32 {
 type Mplayer struct {
     // FIFO path.
     PathFifo string
-
-    // Current file being played.
-    FileName string
 }
 
 // Generic interface to send a command to the Mplayer FIFO.
@@ -49,6 +46,10 @@ func (m* Mplayer) sendCommand(cmd string) (err error) {
 }
 
 func (m* Mplayer) FifoOk() (err error) {
+    if m.PathFifo == "" {
+        return errors.New("FIFO path is empty")
+    }
+
     fileinfo, err := os.Stat(m.PathFifo)
     if err != nil {
         return err
@@ -69,7 +70,6 @@ func (m* Mplayer) FifoOk() (err error) {
 //
 // Mplayer slave command: loadfile <file|url>\n
 func (m* Mplayer) Loadfile(file string) (err error) {
-    m.FileName = file[strings.LastIndex(file, "/") + 1:]
     return m.sendCommand(fmt.Sprintf("loadfile %s\n", file))
 }
 
@@ -137,7 +137,8 @@ func (m* Mplayer) OsdShowText(text string, duration uint16) (err error) {
     return m.sendCommand(fmt.Sprintf("osd_show_text \"%s\" %d\n", newtext, duration))
 }
 
-// Displays the current playing file on OSD.
-func (m* Mplayer) OsdDisplayFile(duration uint16) (err error) {
-    return m.OsdShowText(m.FileName, duration)
+// Displays the current playing file on OSD. The property is fetched from internal
+// mplayer source.
+func (m* Mplayer) OsdShowFilename(duration uint16) (err error) {
+    return m.sendCommand(fmt.Sprintf("osd_show_property_text ${filename} %d\n", duration))
 }
