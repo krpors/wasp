@@ -17,10 +17,10 @@ of using LIRC (infrared) or Bluetooth, the controlling is done with a web interf
 # Plan
 
 I'm attempting to write this using the [Go](http://www.golang.org) programming language,
-because I think it's so awesome, and I want to keep it 'lightweight', as in a single 
-executable for the actual program. My idea is to expose certain URIs on the localhost
-and when a POST or GET (I'm not sure yet) is done on for instance /start/ a command
-is forwarded to a AV player (like mplayer). So an example could be:
+because I think it's so awesome, and I want to keep it 'lightweight': a single executable 
+for the actual program with a few 'helper files', like HTML template files. My idea is 
+to expose certain URIs on the localhost, and when a POST or GET (I'm not sure yet) is done,
+an MPlayer command is executed. Example run:
 
 1. Wasp is started on localhost:8080 (lets say this is 192.168.1.2).
 1. User points to http://192.168.1.2:8080 using a phone.
@@ -34,4 +34,7 @@ http://192.168.1.2/play?v=/home/user/myvideo.mp4
 * [Slave mode Mplayer](http://www.mplayerhq.hu/DOCS/HTML/en/MPlayer.html#slave-mode)
 * [Slave mode commands](http://www.mplayerhq.hu/DOCS/tech/slave.txt)
 * Use a named pipe to issue commands (mkfifo)
-* mplayer -noconfig all -noconsolecontrols -quiet -idle -slave -fs -zoom -input file=/tmp/mplayer.fifo
+* SQLite for storing media files etc? See [sqlite.go](http://code.google.com/p/gosqlite/) for an
+interface to SQLite.
+
+  mplayer -noconfig all -noconsolecontrols -quiet -idle -slave -fs -zoom -input file=/tmp/mplayer.fifo
