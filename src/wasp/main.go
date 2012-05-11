@@ -7,6 +7,9 @@ import (
     "os"
 )
 
+// The Mplayer we're about to use.
+var mplayer Mplayer
+
 func startHandler(w http.ResponseWriter, r *http.Request) {
     fmt.Fprintf(w, "Epic lulz0r!")
 }
@@ -25,12 +28,15 @@ func main() {
     http.ListenAndServe("192.168.1.100:8080", nil)
     */
 
-    m := Mplayer{"/tmp/mplayer.fifo"}
-    err := m.FifoOk()
+    mplayer = Mplayer{}
+    mplayer.PathFifo = "/tmp/mplayer.fifo"
+
+    err := mplayer.FifoOk()
     if err != nil {
         log.Printf("Fifo is not ok: %s\n", err)
         os.Exit(1)
     }
 
-    //m.Loadfile("/home/krpors/downloads/850.avi")
+    mplayer.Loadfile("/home/krpors/fey.mp4")
+    mplayer.OsdDisplayFile(5000)
 }
