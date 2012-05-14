@@ -117,7 +117,7 @@ func Save(conf *Config) error {
 
 func SaveDefaults() error {
     config := Config{}
-    config.MediaDir = "/home/media/"
+    config.MediaDir = "/"
     config.BindAddress = ":8080"
     config.MplayerFifo = "/tmp/mplayer.fifo"
     return Save(&config)

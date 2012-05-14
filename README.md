@@ -37,3 +37,4 @@ http://192.168.1.2/play?v=/home/user/myvideo.mp4
 * SQLite for storing media files etc? See [sqlite.go](http://code.google.com/p/gosqlite/) for an
 interface to SQLite.
 * ``mplayer -noconfig all -noconsolecontrols -quiet -idle -slave -fs -zoom -input file=/tmp/mplayer.fifo``
+* Template language of Go (poorly documented), find some more [here](http://jan.newmarch.name/go/template/chapter-template.html)

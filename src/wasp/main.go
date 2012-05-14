@@ -2,15 +2,20 @@ package main
 
 import (
     "fmt"
+    "container/list"
     "log"
     "net/http"
+    "os"
     "html/template"
+    "path"
 
     "wasp/conf"
 )
 
 // The Mplayer we're about to use.
 var mplayer Mplayer
+// The 'global' configuration.
+var config conf.Config
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
     t, _ := template.ParseFiles("./templates/index.html")
@@ -30,9 +35,88 @@ func stopHandler(w http.ResponseWriter, r *http.Request) {
     mplayer.Stop()
 }
 
+func listingHandler(w http.ResponseWriter, r *http.Request) {
+    t, _ := template.ParseFiles("./templates/listing.html")
+
+    // 1. request path from URI.
+    // 2. concat it with config.MediaDir + p=...
+    // 3. disallow using ".." in the path
+    // 4. fetch dirlist from path
+    // 5. build list with paths
+    // 6. add to template execution
+
+    values := r.URL.Query()
+    requestPath := values.Get("p")
+
+    log.Printf("Requesting path '%s'", requestPath)
+
+    dir, err := os.Open(path.Join(config.MediaDir, requestPath))
+    if err != nil {
+        log.Println("Can't open directory")
+        return
+    }
+
+    fileinfos, err := dir.Readdir(0)
+    if err != nil {
+        log.Println("Can't list directory")
+        return
+    }
+
+    // list holding files
+    dirList := list.New()
+    fileList := list.New()
+    for _, fi := range(fileinfos) {
+        // ignore 'hidden' directories/files, starting with a dot.
+        if fi.Name()[0] == '.' {
+            continue
+        }
+
+        // TODO: only add media files. So probably a set of allowed extensions.
+        // Match them case insensitive. If dir, or media file, add them. Needs
+        // sorting too on directories first, then files, and on alphabetical order.
+
+        if fi.IsDir() {
+            dirList.PushBack(fi.Name())
+        } else {
+            fileList.PushBack(fi.Name())
+        }
+
+    }
+
+    dirs := make([]string, dirList.Len())
+    files := make([]string, fileList.Len())
+    i := 0
+    for e := dirList.Front(); e != nil; e = e.Next() {
+        dirs[i] = e.Value.(string)
+        i++
+    }
+
+    i = 0
+    for e := fileList.Front(); e != nil; e = e.Next() {
+        files[i] = e.Value.(string)
+        i++
+    }
+
+    type ListingData struct {
+        ParentDir string
+        Directories []string
+        Files []string
+    }
+
+    data := ListingData{requestPath, dirs, files}
+
+    t.Execute(w, data)
+}
+
+func registerHandlers() {
+    http.HandleFunc("/", indexHandler)
+    http.HandleFunc("/listing", listingHandler)
+    http.HandleFunc("/start", startHandler)
+    http.HandleFunc("/stop", stopHandler)
+}
+
 // Entry point. Start it up.
 func main() {
-
     log.Println("Wasp starting")
 
     filename, err := conf.FileName()
@@ -51,7 +135,8 @@ func main() {
 
     log.Printf("Loading configuration from '%s'", filename)
 
-    config, conferr := conf.Load()
+    var conferr error
+    config, conferr = conf.Load()
     if conferr != nil {
         log.Println("Unable to load configuration: ", conferr)
     }
@@ -59,14 +144,11 @@ func main() {
     log.Printf("Using fifo path %s. Make sure Mplayer uses this same named pipe.", config.MplayerFifo)
     mplayer = Mplayer{config.MplayerFifo}
 
-    http.HandleFunc("/", indexHandler)
-    http.HandleFunc("/start", startHandler)
-    http.HandleFunc("/stop", stopHandler)
-
     log.Printf("Media directory is %s", config.MediaDir)
 
     log.Printf("Starting to listen on '%s'", config.BindAddress)
 
+    registerHandlers()
     err = http.ListenAndServe(config.BindAddress, nil)
     if err != nil {
         log.Fatalf("Failed to bind to address '%s': %s", config.BindAddress, err)
