@@ -2,7 +2,6 @@ package conf
 
 import(
     "encoding/json"
-    "errors"
     "fmt"
     "io/ioutil"
     "os"
@@ -13,88 +12,113 @@ const CONFIG_DIR string = "/.wasp"
 const CONFIG_FILE string = "/.wasp/config.json"
 
 type ConfigError struct {
+    // Our description
     Desc string
 }
 
 func (c *ConfigError) Error() string {
-    return fmt.Sprintf("Configuration error: %s", c.Desc)
+    return c.Desc
 }
 
 // The Config struct denotes Wasp configuration. Decoded as JSON.
 type Config struct {
+    // Base media directory
     MediaDir string
+    // Webserver's bind address. Default is ":8080"
+    BindAddress string
+    // Mplayer FIFO location. Default is /tmp/mplayer.fifo
+    MplayerFifo string
 }
 
-// Util function to get the configuration 
-func getConfigFile() (file* os.File, err error) {
+func FileName() (filename string, err error) {
     usr, uerr := user.Current()
     if uerr != nil {
-        return nil, errors.New("1")
+        return "", &ConfigError{ "Unable to get current user information" }
+    }
+
+    return usr.HomeDir + CONFIG_FILE, nil
+}
+
+// Checks if the file exists and all that jazz.
+func Exists() bool {
+    usr, uerr := user.Current()
+    if uerr != nil {
+        return false
     }
 
     fullfile := usr.HomeDir + CONFIG_FILE
-    f, derr := os.Open(fullfile)
+    _, derr := os.Open(fullfile)
     if derr != nil {
-        return nil, errors.New("2")
+        return false
     }
 
-    return f, nil
+    return true
 }
 
 // This function loads the configuration from the current user's 
 // ${HOME}/.wasp/config.json file. If it does not exist, return an
 // error.
 func Load() (conf Config, err error) {
-    file, cerr := getConfigFile()
+    file, cerr := FileName()
     if cerr != nil {
-        return Config{}, errors.New("3")
+        return Config{}, cerr
     }
 
-
-    // TODO: unmarshal the json configuration
-    fmt.Printf("Filename to unmarshal: %s\n", file.Name())
-    var c Config
-    bytes, err := ioutil.ReadFile(file.Name())
+    bytes, err := ioutil.ReadFile(file)
     if err != nil {
-
-    }
-    jerr := json.Unmarshal(bytes, &c)
-    if jerr != nil {
-        fmt.Printf("Unable to unmarshall file %s", file.Name())
+        errorDesc := fmt.Sprintf("Unable to read file contents from %s", file)
+        return Config{}, &ConfigError { errorDesc }
     }
 
-    conf = c
-    err = nil
-    return
+    err = json.Unmarshal(bytes, &conf)
+    if err != nil {
+        errorDesc := fmt.Sprintf("Unable to read JSON configuration: %s", err)
+        return Config{}, &ConfigError { errorDesc }
+    }
+
+    return conf, nil
 }
 
 // Saves the given configuration to the current user's configuration file.
 // The config file is saved in a subdirectory "~/.wasp/". If this directory
 // does not exist yet, create it. 
-func Save(conf Config) error {
-    usr, uerr := user.Current()
-    if uerr != nil {
-        return uerr
-    }
-
-    // forcefully create directory. Does nothing if it already exists.
-    derr := os.MkdirAll(usr.HomeDir + CONFIG_DIR, 0755)
-    if derr != nil {
-        return derr
-    }
-
-    // TODO: marshal the config.
-    b, err := json.Marshal(conf)
+func Save(conf *Config) error {
+    usr, err := user.Current()
     if err != nil {
         return err
     }
 
-    return ioutil.WriteFile(usr.HomeDir + CONFIG_FILE, b, 0644)
+    dir := usr.HomeDir + CONFIG_DIR
+    file := usr.HomeDir + CONFIG_FILE
+
+    // forcefully create directory. Does nothing if it already exists.
+    err = os.MkdirAll(dir, 0755)
+    if err != nil {
+        errorDesc := fmt.Sprintf("Unable to create directory '%s': %s", dir, err.Error())
+        return &ConfigError{ errorDesc }
+    }
+
+    var b []byte
+    b, err = json.Marshal(conf)
+    if err != nil {
+        errorDesc := fmt.Sprintf("Unable to marshal configuration to JSON: %s", err.Error())
+        return &ConfigError{ errorDesc }
+    }
+
+    err = ioutil.WriteFile(file, b, 0644)
+    if err != nil {
+        errorDesc := fmt.Sprintf("Unable to save configuration to '%s': %s", file, err.Error())
+        return &ConfigError{ errorDesc }
+    }
+
+    // A-okay!
+    return nil
 }
 
 func SaveDefaults() error {
-    // TODO: Config struct with default values, store them through Save()
     config := Config{}
     config.MediaDir = "/home/media/"
-    return Save(config)
+    config.BindAddress = ":8080"
+    config.MplayerFifo = "/tmp/mplayer.fifo"
+    return Save(&config)
 }
