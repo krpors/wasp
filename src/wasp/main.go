@@ -32,7 +32,6 @@ func stopHandler(w http.ResponseWriter, r *http.Request) {
 
 // Entry point. Start it up.
 func main() {
-    mplayer = Mplayer{"/tmp/mplayer.fifo"}
 
     log.Println("Wasp starting")
 
@@ -56,6 +55,9 @@ func main() {
     if conferr != nil {
         log.Println("Unable to load configuration: ", conferr)
     }
+
+    log.Printf("Using fifo path %s. Make sure Mplayer uses this same named pipe.", config.MplayerFifo)
+    mplayer = Mplayer{config.MplayerFifo}
 
     http.HandleFunc("/", indexHandler)
     http.HandleFunc("/start", startHandler)
