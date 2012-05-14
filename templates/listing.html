@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Browsing for lol</title>
+    </head>
+    <body>
+        <h1>Directory list</h1>
+
+        <a href="/">Back to main control</a>
+        <p/>
+        <b>Directories:</b>
+        <ul>
+            {{ $ParentDir := .ParentDir }}
+                <li><a href="?p={{ $ParentDir }}/..">..</a></li>
+            {{ range .Directories }}
+                <li><a href="?p={{ $ParentDir }}%2f{{ . }}">{{ . }}</a></li>
+            {{ end }}
+        </ul>
+
+        <b>Files:</b>
+        <ul>
+            {{ $ParentDir := .ParentDir }}
+            {{ range .Files }}
+                <li><a href="/start">{{ . }}</a></li>
+            {{ end }}
+        </ul>
+
+    </body>
+</html>
+
