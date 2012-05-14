@@ -20,6 +20,8 @@ var config conf.Config
 func indexHandler(w http.ResponseWriter, r *http.Request) {
     t, _ := template.ParseFiles("./templates/index.html")
     t.Execute(w, nil)
+
+    log.Println("Index handlr")
 }
 
 func startHandler(w http.ResponseWriter, r *http.Request) {
@@ -30,9 +32,22 @@ func startHandler(w http.ResponseWriter, r *http.Request) {
     }
 }
 
+func pauseHandler(w http.ResponseWriter, r *http.Request) {
+    log.Println("Toggling pause")
+
+    err := mplayer.Pause()
+    if err != nil {
+        log.Println("Couldn't pause")
+    }
+
+    http.Redirect(w, r, "/index", http.StatusMovedPermanently)
+}
+
 func stopHandler(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprintf(w, "Stopping...")
+    log.Println("Stopping playback")
     mplayer.Stop()
+
+    http.Redirect(w, r, "/index", http.StatusMovedPermanently)
 }
 
 func listingHandler(w http.ResponseWriter, r *http.Request) {
@@ -109,10 +124,11 @@ func listingHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func registerHandlers() {
-    http.HandleFunc("/", indexHandler)
     http.HandleFunc("/listing", listingHandler)
     http.HandleFunc("/start", startHandler)
     http.HandleFunc("/stop", stopHandler)
+    http.HandleFunc("/pause", pauseHandler)
+    http.HandleFunc("/index", indexHandler)
 }
 
 // Entry point. Start it up.

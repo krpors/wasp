@@ -3,30 +3,33 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Browsing for lol</title>
+        <title> Wasp Remote Control </title>
+        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css" />
+        <link rel="stylesheet" href="my.css" />
+        <style>
+            /* App custom styles */
+        </style>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"> </script>
+        <script src="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js"> </script>
     </head>
     <body>
-        <h1>Directory list</h1>
-
-        <a href="/">Back to main control</a>
-        <p/>
-        <b>Directories:</b>
-        <ul>
-            {{ $ParentDir := .ParentDir }}
-                <li><a href="?p={{ $ParentDir }}/..">..</a></li>
-            {{ range .Directories }}
-                <li><a href="?p={{ $ParentDir }}%2f{{ . }}">{{ . }}</a></li>
-            {{ end }}
-        </ul>
-
-        <b>Files:</b>
-        <ul>
-            {{ $ParentDir := .ParentDir }}
-            {{ range .Files }}
-                <li><a href="/start">{{ . }}</a></li>
-            {{ end }}
-        </ul>
-
+        <div data-role="page" id="page1">
+            <div data-theme="d" data-role="header">
+                <h3> Wasp Control </h3>
+                <div data-role="navbar" data-iconpos="top">
+                    <ul>
+                        <li>
+                            <a href="/index" data-theme="d" data-icon="gear"> Control </a>
+                        </li>
+                        <li>
+                            <a href="/listing" data-theme="d" data-icon="search" class="ui-btn-active"> Browse Media </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <script>
+            //App custom javascript
+        </script>
     </body>
 </html>
-
