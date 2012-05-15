@@ -27,6 +27,24 @@
                     </ul>
                 </div>
             </div>
+            <div data-role="content">
+                <ul data-role="listview" data-theme="a" data-icon="gear">
+                    <li><a href="listing?p={{ .ParentDir }}">Back to {{ .ParentDir }}</a></li>
+                </ul>
+                <p/>
+                <ul data-role="listview" data-theme="c" data-icon="gear">
+                    {{ $RequestPath := .RequestPath }}
+                    {{ range .Directories }}
+                        <li><a href="listing?p={{ $RequestPath }}/{{ . }}" data-transition="pop">{{ . }}</a></li>
+                    {{ end }}
+                </ul>
+                <p/>
+                <ul data-role="listview" data-theme="e" data-icon="gear">
+                    {{ range .Files }}
+                        <li><a href="#">{{ . }}</a></li>
+                    {{ end }}
+                </ul>
+            </div>
         </div>
         <script>
             //App custom javascript

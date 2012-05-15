@@ -6,15 +6,18 @@ import (
     "log"
     "net/http"
     "os"
+    "sort"
     "html/template"
     "path"
     "strconv"
 
     "wasp/conf"
+    "wasp/mplayer"
 )
 
 // The Mplayer we're about to use.
-var mplayer Mplayer
+var mpl mplayer.Mplayer
+
 // The 'global' configuration.
 var config conf.Config
 
@@ -26,7 +29,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func startHandler(w http.ResponseWriter, r *http.Request) {
-    err := mplayer.Loadfile("/home/krpors/fey.mp4")
+    err := mpl.Loadfile("/home/krpors/fey.mp4")
     if err != nil {
         fmt.Fprintf(w, "Fifo couldn't be stat")
     }
@@ -35,19 +38,24 @@ func startHandler(w http.ResponseWriter, r *http.Request) {
 func pauseHandler(w http.ResponseWriter, r *http.Request) {
     log.Println("Toggling pause")
 
-    err := mplayer.Pause()
+    err := mpl.Pause()
     if err != nil {
-        log.Println("Couldn't pause")
+        log.Printf("Unable to pause Mplayer: %s", err)
     }
 }
 
 func stopHandler(w http.ResponseWriter, r *http.Request) {
     log.Println("Stopping playback")
-    mplayer.Stop()
+
+    err := mpl.Stop()
+    if err != nil {
+        log.Printf("Unable to stop Mplayer: %s", err)
+    }
 }
 
 func volumeHandler(w http.ResponseWriter, r *http.Request) {
-    log.Println("Should handle volume.")
+    log.Println("Changing volume.")
+
     //log.Println("Content: ", r.FormValue("volume"))
     vol, err := strconv.ParseFloat(r.FormValue("volume"), 32)
     if err != nil {
@@ -56,38 +64,50 @@ func volumeHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     // use a percentage as volume (it will be clamped automatically)
-    log.Printf("Volume is %4.1f", Percentage(vol).Clamped())
-    mplayer.Volume(Percentage(vol), true)
+    log.Printf("Volume is %4.1f", mplayer.Percentage(vol).Clamped())
+    err = mpl.Volume(mplayer.Percentage(vol))
+    if err != nil {
+        log.Printf("Volume changing failed: %s", err)
+    }
 }
 
+func muteHandler(w http.ResponseWriter, r *http.Request) {
+    log.Println("Muting!?")
+    muting, err := strconv.ParseBool(r.FormValue("mute"))
+    if err != nil {
+        muting = false
+    }
+
+    mpl.Mute(muting)
+}
+
+// The listing handler generates a list of directories and files
+// which can be clicked on to browse with. The request path is 
+// given in the http.Request using the parameter name `p'.
 func listingHandler(w http.ResponseWriter, r *http.Request) {
     t, _ := template.ParseFiles("./templates/listing.html")
-
-    // 1. request path from URI.
-    // 2. concat it with config.MediaDir + p=...
-    // 3. disallow using ".." in the path
-    // 4. fetch dirlist from path
-    // 5. build list with paths
-    // 6. add to template execution
 
     values := r.URL.Query()
     requestPath := values.Get("p")
 
     log.Printf("Requesting path '%s'", requestPath)
 
+    // Get a directory listing of the selected directory. First, concat
+    // the media directory with the request path so we have an absolute path.
     dir, err := os.Open(path.Join(config.MediaDir, requestPath))
     if err != nil {
-        log.Println("Can't open directory")
+        log.Printf("Can't open directory: %s", err)
         return
     }
-
+    
+    // Fetch the actual file information slice.
     fileinfos, err := dir.Readdir(0)
     if err != nil {
-        log.Println("Can't list directory")
+        log.Printf("Can't list directory: %s", err)
         return
     }
 
-    // list holding files
+    // Generate a (doubly linked) list with files.
     dirList := list.New()
     fileList := list.New()
     for _, fi := range(fileinfos) {
@@ -105,9 +125,9 @@ func listingHandler(w http.ResponseWriter, r *http.Request) {
         } else {
             fileList.PushBack(fi.Name())
         }
-
     }
 
+    // Copy them back to a slice.
     dirs := make([]string, dirList.Len())
     files := make([]string, fileList.Len())
     i := 0
@@ -122,14 +142,33 @@ func listingHandler(w http.ResponseWriter, r *http.Request) {
         i++
     }
 
+    sort.Strings(dirs)
+    sort.Strings(files)
+
+    // 'Temporary' struct to use for the template
     type ListingData struct {
         ParentDir string
+        RequestPath string
         Directories []string
         Files []string
     }
 
-    data := ListingData{requestPath, dirs, files}
+    // Create a struct with content. path.Dir() gets the parent directory, and
+    // is used to navigate to back up one directory. The requestPath is used
+    // to browse to a new directory. The dirs and files slices contains the 
+    // directories and the files respectively. TODO: sort these, alphabetically.
+    data := ListingData{
+        // The parent directory, so we can go back.
+        path.Clean(path.Dir(requestPath)),
+        // The requested, current path
+        path.Clean(requestPath),
+        // The directories in requestPath
+        dirs,
+        // The files in requestPath
+        files,
+    }
 
+    // Execute the template, write outcome to `w'.
     t.Execute(w, data)
 }
 
@@ -139,7 +178,9 @@ func registerHandlers() {
     http.HandleFunc("/stop", stopHandler)
     http.HandleFunc("/pause", pauseHandler)
     http.HandleFunc("/volume", volumeHandler)
+    http.HandleFunc("/mute", muteHandler)
     http.HandleFunc("/index", indexHandler)
+
 }
 
 // Entry point. Start it up.
@@ -169,7 +210,8 @@ func main() {
     }
 
     log.Printf("Using fifo path %s. Make sure Mplayer uses this same named pipe.", config.MplayerFifo)
-    mplayer = Mplayer{config.MplayerFifo}
+    mpl = mplayer.Mplayer{}
+    mpl.PathFifo = config.MplayerFifo
 
     log.Printf("Media directory is %s", config.MediaDir)
 

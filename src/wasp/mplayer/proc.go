@@ -1,4 +1,4 @@
-package main 
+package mplayer
 
 import (
     "errors"
@@ -26,11 +26,11 @@ func (p Percentage) Clamped() float32 {
     return float32(p)
 }
 
-
 // Accessors to Mplayer slave commands
 type Mplayer struct {
     // FIFO path.
     PathFifo string
+
 }
 
 // Generic interface to send a command to the Mplayer FIFO.
@@ -76,8 +76,15 @@ func (m* Mplayer) Loadfile(file string) (err error) {
 // Toggles sound on/off.
 //
 // Mplayer slave command: mute\n
-func (m* Mplayer) Mute() (err error) {
-    return m.sendCommand(fmt.Sprintf("mute\n"))
+func (m* Mplayer) Mute(mute bool) (err error) {
+    var muteness string
+    if mute {
+        muteness = "1"
+    } else {
+        muteness = "0"
+    }
+
+    return m.sendCommand(fmt.Sprintf("mute %s\n", muteness))
 }
 
 // Toggles Pausing.
@@ -111,23 +118,16 @@ func (m* Mplayer) SeekPercentage(value Percentage) (err error) {
     return m.sendCommand(fmt.Sprintf("seek %5.1f 1\n", value.Clamped()))
 }
 
-// Sets volume. Increase or decrease it, or set to 'value' if abs is set to 
-// 'true' (absolute value, instead of increment). In mplayer (well, mplayer1, 
-// not sure about mplayer2), the volume can only be succesfully changed when
-// a file is loaded.
+// Sets volume in an absolute manner. I.e. 0 = silent, 100 = full volum.
+// In mplayer (well, mplayer1, not sure about mplayer2), the volume can only 
+// be succesfully changed when a file is loaded.
 //
 // Mplayer slave command: volume <value> [abs]
-func (m* Mplayer) Volume(value Percentage, abs bool) (err error) {
-    if abs {
-        return m.sendCommand(fmt.Sprintf("volume %f 1\n", value.Clamped()))
-    } else {
-        return m.sendCommand(fmt.Sprintf("volume %i\n", value.Clamped()))
-    }
-
-    return nil
+func (m* Mplayer) Volume(value Percentage) (err error) {
+    return m.sendCommand(fmt.Sprintf("volume %f 1\n", value.Clamped()))
 }
 
-// Writes an OSD (on-screen-display) string. The text cannot contains double
+// Writes an OSD (on-screen-display) string. The text cannot contain double
 // quotes. If double quotes exist, they are escaped by using a single quote.
 // Duration is in milliseconds.
 //

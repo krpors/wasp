@@ -7,14 +7,16 @@
         <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css" />
         <link rel="stylesheet" href="my.css" />
         <style>
-            /* App custom styles */
+            div.mute-ctrl .ui-slider-switch { 
+                width: 9em 
+            }
         </style>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"> </script>
         <script src="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js"> </script>
     </head>
     <body>
         <div data-role="page" id="index">
-            <div data-theme="c" data-role="header" data-position="fixed">
+            <div data-theme="d" data-role="header" data-position="fixed">
                 <h3> Wasp Control </h3>
                 <div data-role="navbar" data-iconpos="top">
                     <ul>
@@ -26,32 +28,36 @@
                         </li>
                     </ul>
                 </div>
+            </div>
+            <div data-role="content">
                 <div data-role="fieldcontain">
                     <fieldset data-role="controlgroup">
                         <label for="slider1"> Volume </label>
-                        <input type="range" name="volumeSlider" id="volume" value="50" min="0" max="100" step="10" data-highlight="false" />
+                        <input type="range" name="volumeSlider" id="volume" value="100" min="0" max="100" step="10" data-highlight="false" />
                     </fieldset>
                 </div>
-                <div data-role="fieldcontain">
+                <div data-role="fieldcontain" class="mute-ctrl">
                     <fieldset data-role="controlgroup">
-                        <label for="toggleswitch1"> Muting </label>
-                        <select name="toggleswitch1" id="toggleswitch1" data-theme="" data-role="slider">
-                            <option value="off"> Off </option>
-                            <option value="on"> On </option>
-                        </select>
+                        <label for="mute">Mute volume</label>
+                        <input type="checkbox" id="mute" name="mute" /> 
                     </fieldset>
                 </div>
-            </div>
-            <div data-role="content">
                 <input id="testmovie" type="button" data-icon="arrow-u" value="Test movie"/>
                 <input id="pause" type="button" data-icon="arrow-r" value="Pause/unpause"/>
                 <input id="stop" type="button" data-icon="delete" value="Stop playback"/>
+                <input id="status" type="button" data-icon="delete" value="Check status"/>
             </div>
         </div>
         <script>
+            function resetToDefaults() {
+                $("input#volume").val(100).slider("refresh");
+                $("input#mute").attr("checked", false).checkboxradio("refresh");
+            }
+
             // All jQueryMobile (slightly registered differently than normal jQuery) events
             // (Ajax calls) are coming here.
             $(document).bind("pageinit", function(event, ui) {
+
                 $("input#volume").bind("change", function(event, ui) {
                     var volume = $(this).val()
                     var request = $.ajax({
@@ -84,9 +90,28 @@
                         type: "POST",
                         url: "/stop",
                     });
+                    
+                    resetToDefaults();
+                });
+
+                $("input#status").bind("click", function(event, ui) {
+                    var request = $.ajax({
+                        type: "POST",
+                        url: "/status",
+                    });
 
                 });
 
+                $("input#mute").bind("change", function(event, ui) {
+                    var value = $(this).is(":checked");
+                    var request = $.ajax({
+                        type: "POST",
+                        url: "/mute",
+                        data: {
+                            mute : value,
+                        }
+                    });
+                });
             });
         </script>
     </body>
