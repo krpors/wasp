@@ -13,23 +13,23 @@
         <script src="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js"> </script>
     </head>
     <body>
-        <div data-role="page" id="page1">
-            <div data-theme="d" data-role="header">
+        <div data-role="page" id="index">
+            <div data-theme="c" data-role="header" data-position="fixed">
                 <h3> Wasp Control </h3>
                 <div data-role="navbar" data-iconpos="top">
                     <ul>
                         <li>
-                            <a href="/index" data-theme="b" data-icon="gear" class="ui-btn-active"> Control </a>
+                            <a href="/index" data-theme="b" data-icon="gear" data-ajax="false" class="ui-btn-active"> Control </a>
                         </li>
                         <li>
-                            <a href="/listing" data-theme="b" data-icon="search"> Browse Media </a>
+                            <a href="/listing" data-theme="b" data-icon="search" data-ajax="false"> Browse Media </a>
                         </li>
                     </ul>
                 </div>
                 <div data-role="fieldcontain">
                     <fieldset data-role="controlgroup">
                         <label for="slider1"> Volume </label>
-                        <input type="range" name="slider" id="slider1" value="50" min="0" max="100" data-highlight="false" />
+                        <input type="range" name="volumeSlider" id="volume" value="50" min="0" max="100" step="10" data-highlight="false" />
                     </fieldset>
                 </div>
                 <div data-role="fieldcontain">
@@ -43,16 +43,51 @@
                 </div>
             </div>
             <div data-role="content">
-                <form action="/pause" method="POST">
-                    <input type="submit" data-icon="arrow-r" data-iconpos="left" value="Pause/Unpause" />
-                </form>
-                <form action="/stop" method="POST">
-                    <input type="submit" data-icon="delete" data-iconpos="left" value="Stop playback" />
-                </form>
+                <input id="testmovie" type="button" data-icon="arrow-u" value="Test movie"/>
+                <input id="pause" type="button" data-icon="arrow-r" value="Pause/unpause"/>
+                <input id="stop" type="button" data-icon="delete" value="Stop playback"/>
             </div>
         </div>
         <script>
-            //App custom javascript
+            // All jQueryMobile (slightly registered differently than normal jQuery) events
+            // (Ajax calls) are coming here.
+            $(document).bind("pageinit", function(event, ui) {
+                $("input#volume").bind("change", function(event, ui) {
+                    var volume = $(this).val()
+                    var request = $.ajax({
+                        type: "POST",
+                        url: "/volume",
+                        data: { 
+                            volume: volume, 
+                        },
+                    });
+                });
+
+                $("input#testmovie").bind("click", function(event, ui) {
+                    var request = $.ajax({
+                        type: "POST",
+                        url: "/start",
+                    });
+
+                });
+
+                $("input#pause").bind("click", function(event, ui) {
+                    var request = $.ajax({
+                        type: "POST",
+                        url: "/pause",
+                    });
+
+                });
+
+                $("input#stop").bind("click", function(event, ui) {
+                    var request = $.ajax({
+                        type: "POST",
+                        url: "/stop",
+                    });
+
+                });
+
+            });
         </script>
     </body>
 </html>

@@ -8,6 +8,7 @@ import (
     "os"
     "html/template"
     "path"
+    "strconv"
 
     "wasp/conf"
 )
@@ -25,7 +26,6 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func startHandler(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprintf(w, ":D")
     err := mplayer.Loadfile("/home/krpors/fey.mp4")
     if err != nil {
         fmt.Fprintf(w, "Fifo couldn't be stat")
@@ -39,15 +39,25 @@ func pauseHandler(w http.ResponseWriter, r *http.Request) {
     if err != nil {
         log.Println("Couldn't pause")
     }
-
-    http.Redirect(w, r, "/index", http.StatusMovedPermanently)
 }
 
 func stopHandler(w http.ResponseWriter, r *http.Request) {
     log.Println("Stopping playback")
     mplayer.Stop()
+}
 
-    http.Redirect(w, r, "/index", http.StatusMovedPermanently)
+func volumeHandler(w http.ResponseWriter, r *http.Request) {
+    log.Println("Should handle volume.")
+    //log.Println("Content: ", r.FormValue("volume"))
+    vol, err := strconv.ParseFloat(r.FormValue("volume"), 32)
+    if err != nil {
+        // if we fail to convert the volume, set it to 50.0
+        vol = 50.0
+    }
+
+    // use a percentage as volume (it will be clamped automatically)
+    log.Printf("Volume is %4.1f", Percentage(vol).Clamped())
+    mplayer.Volume(Percentage(vol), true)
 }
 
 func listingHandler(w http.ResponseWriter, r *http.Request) {
@@ -128,6 +138,7 @@ func registerHandlers() {
     http.HandleFunc("/start", startHandler)
     http.HandleFunc("/stop", stopHandler)
     http.HandleFunc("/pause", pauseHandler)
+    http.HandleFunc("/volume", volumeHandler)
     http.HandleFunc("/index", indexHandler)
 }
 
