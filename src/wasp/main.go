@@ -6,6 +6,7 @@ import (
     "log"
     "net/http"
     "os"
+    "path/filepath"
     "sort"
     "html/template"
     "path"
@@ -21,8 +22,15 @@ var mpl mplayer.Mplayer
 // The 'global' configuration.
 var config conf.Config
 
+//==============================================================================
+
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-    t, _ := template.ParseFiles("./templates/index.html")
+    t, err := template.ParseFiles("./site/templates/index.html")
+    if err != nil {
+        log.Fatalf("Can not parse template: %s", err)
+        return
+    }
+
     t.Execute(w, nil)
 
     log.Println("Index handlr")
@@ -85,7 +93,10 @@ func muteHandler(w http.ResponseWriter, r *http.Request) {
 // which can be clicked on to browse with. The request path is 
 // given in the http.Request using the parameter name `p'.
 func listingHandler(w http.ResponseWriter, r *http.Request) {
-    t, _ := template.ParseFiles("./templates/listing.html")
+    t, err := template.ParseFiles("./site/templates/listing.html")
+    if err != nil {
+        log.Fatalf("Can not parse template: %s", err)
+    }
 
     values := r.URL.Query()
     requestPath := values.Get("p")
@@ -99,7 +110,7 @@ func listingHandler(w http.ResponseWriter, r *http.Request) {
         log.Printf("Can't open directory: %s", err)
         return
     }
-    
+
     // Fetch the actual file information slice.
     fileinfos, err := dir.Readdir(0)
     if err != nil {
@@ -172,7 +183,10 @@ func listingHandler(w http.ResponseWriter, r *http.Request) {
     t.Execute(w, data)
 }
 
+type Lol string
+
 func registerHandlers() {
+    // regular handlers:
     http.HandleFunc("/listing", listingHandler)
     http.HandleFunc("/start", startHandler)
     http.HandleFunc("/stop", stopHandler)
@@ -181,6 +195,17 @@ func registerHandlers() {
     http.HandleFunc("/mute", muteHandler)
     http.HandleFunc("/index", indexHandler)
 
+    // static (JS, CSS) content handler:
+    pwd, err := os.Getwd()
+    pwd = filepath.Join(pwd, "/site/")
+    log.Printf("It's %s", pwd)
+
+    if err != nil {
+        log.Fatalf("Unable to get current working directory: %s", err)
+        return
+    }
+
+    http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(pwd))))
 }
 
 // Entry point. Start it up.

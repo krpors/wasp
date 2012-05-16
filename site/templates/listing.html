@@ -4,18 +4,18 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title> Wasp Remote Control </title>
-        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css" />
+        <link rel="stylesheet" href="/static/css/jquery.mobile-1.1.0.min.css" />
         <link rel="stylesheet" href="my.css" />
         <style>
             /* App custom styles */
         </style>
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"> </script>
-        <script src="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js"> </script>
+        <script src="/static/js/jquery-1.7.1.min.js"> </script>
+        <script src="/static/js/jquery.mobile-1.1.0.min.js"> </script>
     </head>
     <body>
         <div data-role="page" id="listing">
             <div data-theme="d" data-role="header">
-                <h3> Wasp Control </h3>
+                <h3> Wasp </h3>
                 <div data-role="navbar" data-iconpos="top">
                     <ul>
                         <li>
@@ -35,13 +35,13 @@
                 <ul data-role="listview" data-theme="c" data-icon="gear">
                     {{ $RequestPath := .RequestPath }}
                     {{ range .Directories }}
-                        <li><a href="listing?p={{ $RequestPath }}/{{ . }}" data-transition="pop">{{ . }}</a></li>
+                        <li><a href="listing?p={{ $RequestPath }}/{{ . }}" data-transition="pop"><img src="/static/images/folder.png" class="ui-li-icon"/>{{ . }}</a></li>
                     {{ end }}
                 </ul>
                 <p/>
                 <ul data-role="listview" data-theme="e" data-icon="gear">
                     {{ range .Files }}
-                        <li><a href="#">{{ . }}</a></li>
+                        <li><a href="#"><img src="/static/images/mediafile.png" class="ui-li-icon"/>{{ . }}</a></li>
                     {{ end }}
                 </ul>
             </div>

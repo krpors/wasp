@@ -10,7 +10,7 @@ import (
 
 // Type Percentage is a float32 which can be used to set certain values in
 // mplayer. They have certain boundaries, so they must be clamped to either
-// 0.0 or 100.0, and not exceed these limits. Internal use only.
+// 0.0 or 100.0, and not exceed these limits.
 type Percentage float32
 
 // Returns a float32 in the boundary [0, 100].
