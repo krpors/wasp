@@ -70,7 +70,7 @@ func (m* Mplayer) FifoOk() (err error) {
 //
 // Mplayer slave command: loadfile <file|url>\n
 func (m* Mplayer) Loadfile(file string) (err error) {
-    return m.sendCommand(fmt.Sprintf("loadfile %s\n", file))
+    return m.sendCommand(fmt.Sprintf("loadfile \"%s\"\n", file))
 }
 
 // Toggles sound on/off.
