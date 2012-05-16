@@ -28,11 +28,28 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
     log.Println("Index handlr")
 }
 
-func startHandler(w http.ResponseWriter, r *http.Request) {
+func testHandler(w http.ResponseWriter, r *http.Request) {
     err := mpl.Loadfile("/home/krpors/fey.mp4")
     if err != nil {
         log.Printf("Unable to start media: %s", err)
     }
+}
+
+func playHandler(w http.ResponseWriter, r *http.Request) {
+    file := r.FormValue("file")
+    if file == "" {
+        // TODO: return an error or something for the page to display.
+        // Preferably in JSON?
+        return
+    }
+
+    file = filepath.Join(config.MediaDir, file)
+
+    err := mpl.Loadfile(file)
+    if err != nil {
+        log.Printf("Unable to start file '%s'. Error is: %s", file, err)
+    }
+    log.Printf("Playing '%s'", file)
 }
 
 func pauseHandler(w http.ResponseWriter, r *http.Request) {
@@ -85,6 +102,15 @@ func muteHandler(w http.ResponseWriter, r *http.Request) {
 // which can be clicked on to browse with. The request path is 
 // given in the http.Request using the parameter name `p'.
 func listingHandler(w http.ResponseWriter, r *http.Request) {
+    // 'Temporary' struct to use for the template
+    type ListingData struct {
+        ParentDir string        // parent directory
+        RequestPath string      // requested path
+        Directories []string    // slice of directories
+        Files []string          // slice of files
+        Error string            // possible error. May be empty.
+    }
+
     t, err := template.ParseFiles("./site/templates/listing.html")
     if err != nil {
         log.Fatalf("Can not parse template: %s", err)
@@ -99,7 +125,13 @@ func listingHandler(w http.ResponseWriter, r *http.Request) {
     // the media directory with the request path so we have an absolute path.
     dir, err := os.Open(path.Join(config.MediaDir, requestPath))
     if err != nil {
-        log.Printf("Can't open directory: %s", err)
+        // This might happen if we aren't allowed to open a directory
+        // due to permission issues.
+        log.Printf("Unable to open directory: %s", err)
+        data := ListingData{}
+        data.ParentDir = path.Clean(path.Dir(requestPath))
+        data.Error = "Contents could not be listed."
+        t.Execute(w, data)
         return
     }
 
@@ -148,13 +180,7 @@ func listingHandler(w http.ResponseWriter, r *http.Request) {
     sort.Strings(dirs)
     sort.Strings(files)
 
-    // 'Temporary' struct to use for the template
-    type ListingData struct {
-        ParentDir string
-        RequestPath string
-        Directories []string
-        Files []string
-    }
+
 
     // Create a struct with content. path.Dir() gets the parent directory, and
     // is used to navigate to back up one directory. The requestPath is used
@@ -169,6 +195,8 @@ func listingHandler(w http.ResponseWriter, r *http.Request) {
         dirs,
         // The files in requestPath
         files,
+        // The error. Empty, cus OK!
+        "",
     }
 
     // Execute the template, write outcome to `w'.
@@ -178,7 +206,8 @@ func listingHandler(w http.ResponseWriter, r *http.Request) {
 func registerHandlers() {
     // regular handlers:
     http.HandleFunc("/listing", listingHandler)
-    http.HandleFunc("/start", startHandler)
+    http.HandleFunc("/test", testHandler)
+    http.HandleFunc("/play", playHandler)
     http.HandleFunc("/stop", stopHandler)
     http.HandleFunc("/pause", pauseHandler)
     http.HandleFunc("/volume", volumeHandler)
