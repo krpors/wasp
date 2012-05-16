@@ -1,7 +1,6 @@
 package main
 
 import (
-    "fmt"
     "container/list"
     "log"
     "net/http"
@@ -32,7 +31,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 func startHandler(w http.ResponseWriter, r *http.Request) {
     err := mpl.Loadfile("/home/krpors/fey.mp4")
     if err != nil {
-        fmt.Fprintf(w, "Fifo couldn't be stat")
+        log.Printf("Unable to start media: %s", err)
     }
 }
 
@@ -189,7 +188,6 @@ func registerHandlers() {
     // static (JS, CSS) content handler:
     pwd, err := os.Getwd()
     pwd = filepath.Join(pwd, "/site/")
-    log.Printf("It's %s", pwd)
 
     if err != nil {
         log.Fatalf("Unable to get current working directory: %s", err)
