@@ -38,18 +38,23 @@ The project is of course still in its infancy, but follow these basic steps to s
 **Build the sources:**
 
 Clone the git repository:
+
 `git clone git://github.com/krpors/wasp.git`
 
 Change directory to the just cloned repository:
+
 `cd ./wasp`
 
 Set the GOPATH to the current directory:
+
 `export GOPATH=$(pwd)`
 
 Build the sources:
+
 `make`
 
 Try invoking the binary:
+
 `./bin/wasp`
 
 This will create the initial configuration in `${HOME}/.wasp/config.json`. This configuration
@@ -61,10 +66,13 @@ sets a few properties as follows:
 
 Make a FIFO (named pipe) where Wasp should send its commands to. Note that this should be the same
 FIFO you specified in the config file. For defaults:
+
 `mkfifo /tmp/mplayer.fifo`
 
 Last but not least, start Mplayer in slave mode, with the input to be from the FIFO:
+
 `while true; do mplayer -noconfig all -noconsolecontrols -quiet -idle -slave -fs -zoom -input file=/tmp/mplayer.fifo; done`
+
 The `while true` makes sure Mplayer keeps running at all times, in case unwanted intervention has been done.
 This is not a necessity though, but something to consider.
 
