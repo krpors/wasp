@@ -23,6 +23,15 @@
                     color-stop(0.55, rgb(224,90,90))
                 );
             }
+
+            ul#directories * {
+                font-size: 11pt;
+                color: #396B9E;
+            }
+
+            ul#files * {
+                font-size: 11pt;
+            }
         </style>
         <script src="/static/js/jquery-1.7.1.min.js"> </script>
         <script src="/static/js/jquery.mobile-1.1.0.min.js"> </script>
@@ -47,14 +56,14 @@
                     <li><a href="listing?p={{ .ParentDir }}">Back to {{ .ParentDir }}</a></li>
                 </ul>
                 <p/>
-                <ul data-role="listview" data-theme="c" data-icon="gear">
+                <ul id="directories" data-role="listview" data-theme="c" data-icon="gear">
                     {{ $RequestPath := .RequestPath }}
                     {{ range .Directories }}
                         <li><a href="listing?p={{ $RequestPath }}/{{ . }}" data-transition="slide"><img src="/static/images/folder.png" class="ui-li-icon"/>{{ . }}</a></li>
                     {{ end }}
                 </ul>
                 <p/>
-                <ul data-role="listview" data-theme="e" data-icon="gear">
+                <ul id="files" data-role="listview" data-theme="c" data-icon="gear">
                     {{ range .Files }}
                         <li data-path="{{ $RequestPath }}/{{ . }}" class="mediafile"><a href="#"><img src="/static/images/mediafile.png" class="ui-li-icon"/>{{ . }}</a></li>
                     {{ end }}

@@ -35,6 +35,8 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
     }
 }
 
+// Handles the /play URI. Formvalue 'file' is the relative filename to
+// be playing. The base directory is the config.MediaDir.
 func playHandler(w http.ResponseWriter, r *http.Request) {
     file := r.FormValue("file")
     if file == "" {
@@ -48,6 +50,7 @@ func playHandler(w http.ResponseWriter, r *http.Request) {
     err := mpl.Loadfile(file)
     if err != nil {
         log.Printf("Unable to start file '%s'. Error is: %s", file, err)
+        return
     }
     log.Printf("Playing '%s'", file)
 }
@@ -96,6 +99,24 @@ func muteHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     mpl.Mute(muting)
+}
+
+//================================================================================
+
+// list of allowed extensions for the listing handler to display.
+var allowedExtensions = map[string]bool {
+    ".mp4": true,
+    ".avi": true,
+    ".mp3": true,
+    ".ogg": true,
+    ".oga": true,
+    ".mpg": true,
+    ".wmv": true,
+    ".flv": true,
+    ".swf": true,
+    ".vob": true,
+    ".flac": true,
+    ".mpeg": true,
 }
 
 // The listing handler generates a list of directories and files
@@ -158,7 +179,11 @@ func listingHandler(w http.ResponseWriter, r *http.Request) {
         if fi.IsDir() {
             dirList.PushBack(fi.Name())
         } else {
-            fileList.PushBack(fi.Name())
+            // only allow certain kind of extensions.
+            extension := filepath.Ext(fi.Name())
+            if allowedExtensions[extension] {
+                fileList.PushBack(fi.Name())
+            }
         }
     }
 
@@ -203,6 +228,9 @@ func listingHandler(w http.ResponseWriter, r *http.Request) {
     t.Execute(w, data)
 }
 
+//================================================================================
+
+// Registers URI handlers once.
 func registerHandlers() {
     // regular handlers:
     http.HandleFunc("/listing", listingHandler)
