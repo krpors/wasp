@@ -14,18 +14,14 @@ import (
     "wasp/mplayer"
 )
 
+var templateIndex = template.Must(template.ParseFiles("./site/templates/index.html"))
+var templateListing = template.Must(template.ParseFiles("./site/templates/listing.html"))
+var templateConfig = template.Must(template.ParseFiles("./site/templates/config.html"))
+
 //==============================================================================
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-    t, err := template.ParseFiles("./site/templates/index.html")
-    if err != nil {
-        log.Fatalf("Can not parse template: %s", err)
-        return
-    }
-
-    t.Execute(w, nil)
-
-    log.Println("Index handlr")
+    templateIndex.Execute(w, nil)
 }
 
 func testHandler(w http.ResponseWriter, r *http.Request) {
@@ -133,11 +129,6 @@ func listingHandler(w http.ResponseWriter, r *http.Request) {
         Error string            // possible error. May be empty.
     }
 
-    t, err := template.ParseFiles("./site/templates/listing.html")
-    if err != nil {
-        log.Fatalf("Can not parse template: %s", err)
-    }
-
     values := r.URL.Query()
     requestPath := values.Get("p")
 
@@ -154,7 +145,7 @@ func listingHandler(w http.ResponseWriter, r *http.Request) {
         data := ListingData{}
         data.ParentDir = path.Clean(path.Dir(requestPath))
         data.Error = "Contents could not be listed."
-        t.Execute(w, data)
+        templateListing.Execute(w, data)
         return
     }
 
@@ -227,7 +218,11 @@ func listingHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     // Execute the template, write outcome to `w'.
-    t.Execute(w, data)
+    templateListing.Execute(w, data)
+}
+
+func configHandler(w http.ResponseWriter, r *http.Request) {
+    templateConfig.Execute(w, nil)
 }
 
 //================================================================================
@@ -236,13 +231,15 @@ func listingHandler(w http.ResponseWriter, r *http.Request) {
 func registerHandlers() {
     // regular handlers:
     http.HandleFunc("/listing", listingHandler)
+    http.HandleFunc("/index", indexHandler)
+    http.HandleFunc("/config", configHandler)
+
     http.HandleFunc("/test", testHandler)
     http.HandleFunc("/play", playHandler)
     http.HandleFunc("/stop", stopHandler)
     http.HandleFunc("/pause", pauseHandler)
     http.HandleFunc("/volume", volumeHandler)
     http.HandleFunc("/mute", muteHandler)
-    http.HandleFunc("/index", indexHandler)
 
     // static (JS, CSS) content handler:
     pwd, err := os.Getwd()
