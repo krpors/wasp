@@ -1,25 +1,71 @@
+// Properties, inspired by goproperties, Java Properties. Highly, highly 
+// simplified, but meets the needs.
+
 package conf
 
 import (
     "fmt"
     "io/ioutil"
+    "log"
+    "os"
+    "os/user"
+    "path"
     "strconv"
     "strings"
 )
 
-// The base directory (/ = user's home directory)
-const PROPERTIES_DIR string = "/.wasp"
-// The actual configuration/properties file used to r/w from/to.
-const PROPERTIES_FILE string = "/.wasp/wasp.properties"
+const (
+    // The default configuration/properties file used to r/w from/to.
+    PROPERTIES_FILE string = "/.wasp/wasp.properties"
+)
+
+//================================================================================
 
 // Our custom type Properties, declared as a map of k/v string/string.
 type Properties map[string]string
+
+// Constants (keys) we're using as property names.
+const (
+    P_MEDIA_DIR string = "MediaDirectory"
+    P_BIND_ADDRESS string = "BindAddress"
+    P_MPLAYER_FIFO string = "MplayerFifo"
+)
+
+//================================================================================
+
+// Gets the filename as a string, using the home directory.
+func DefaultFileName() (filename string) {
+    usr, uerr := user.Current()
+    if uerr != nil {
+        log.Fatalf("Unable to get the current user's directory: %s", uerr)
+    }
+
+    return usr.HomeDir + PROPERTIES_FILE
+}
+
+func FileExists(filename string) bool {
+    _, err := os.Stat(filename)
+    if err != nil {
+        return false
+    }
+
+    return true
+}
+
+//================================================================================
+
+// Sets default properties
+func (p *Properties) SetDefaults() {
+    q := *p
+    q[P_MEDIA_DIR] = "/"
+    q[P_BIND_ADDRESS] = ":8080"
+    q[P_MPLAYER_FIFO] = "/tmp/mplayer.fifo"
+}
 
 // Loads properties from a file.
 func (p *Properties) Load(file string) (err error) {
     bytes, err := ioutil.ReadFile(file)
     if err != nil {
-        fmt.Printf("Could not load file: %s", err)
         return
     }
 
@@ -39,8 +85,21 @@ func (p *Properties) Load(file string) (err error) {
 }
 
 // Saves properties to file.
-func (p Properties) Save(file string) (err error) {
-    return nil
+func (p *Properties) Save(file string) (err error) {
+    str := ""
+    for key, value := range(*p) {
+        s := fmt.Sprintf("%s=%s\n", key, value)
+        str += s
+    }
+
+    dir := path.Clean(path.Dir(file))
+    // forcefully create directory. Does nothing if it already exists.
+    err = os.MkdirAll(dir, 0755)
+    if err != nil {
+        return err
+    }
+
+    return ioutil.WriteFile(file, []byte(str), 0644)
 }
 
 // Gets a property as an unsigned integer, size 8 bits

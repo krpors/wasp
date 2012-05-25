@@ -45,7 +45,8 @@ func playHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    file = filepath.Join(config.MediaDir, file)
+    mediadir := properties.GetString("MediaDirectory", "/")
+    file = filepath.Join(mediadir, file)
 
     err := mpl.Loadfile(file)
     if err != nil {
@@ -142,9 +143,10 @@ func listingHandler(w http.ResponseWriter, r *http.Request) {
 
     log.Printf("Requesting path '%s'", requestPath)
 
+    mediadir := properties.GetString("MediaDirectory", "/")
     // Get a directory listing of the selected directory. First, concat
     // the media directory with the request path so we have an absolute path.
-    dir, err := os.Open(path.Join(config.MediaDir, requestPath))
+    dir, err := os.Open(path.Join(mediadir, requestPath))
     if err != nil {
         // This might happen if we aren't allowed to open a directory
         // due to permission issues.
