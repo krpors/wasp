@@ -12,6 +12,7 @@ import (
     "strconv"
 
     "wasp/mplayer"
+    "wasp/conf"
 )
 
 var templateIndex = template.Must(template.ParseFiles("./site/templates/index.html"))
@@ -222,7 +223,18 @@ func listingHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func configHandler(w http.ResponseWriter, r *http.Request) {
-    templateConfig.Execute(w, nil)
+    type ConfigData struct {
+        MediaDir string
+        MplayerFifo string
+        BindAddress string
+    }
+
+    cd := ConfigData{}
+    cd.MediaDir = properties.GetString(conf.P_MEDIA_DIR, "/")
+    cd.BindAddress = properties.GetString(conf.P_BIND_ADDRESS, ":8080")
+    cd.MplayerFifo = properties.GetString(conf.P_MPLAYER_FIFO, "/tmp/mplayer.fifo")
+
+    templateConfig.Execute(w, cd)
 }
 
 //================================================================================

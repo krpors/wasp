@@ -39,14 +39,16 @@ func main() {
     }
 
     mpl = mplayer.Mplayer{}
-    mpl.PathFifo = properties.GetString("MplayerFifo", "/tmp/mplayer.fifo")
+    mpl.PathFifo = properties.GetString(conf.P_MPLAYER_FIFO, "/tmp/mplayer.fifo")
 
-    log.Printf("Media directory is %s", properties.GetString("MediaDirectory", "/"))
-    log.Printf("Starting to listen on '%s'", properties.GetString("BindAddress", ":8080"))
+    log.Printf("Media directory is %s", properties.GetString(conf.P_MEDIA_DIR, "/"))
+    log.Printf("Starting to listen on '%s'", properties.GetString(conf.P_BIND_ADDRESS, ":8080"))
+    log.Printf("Input FIFO filename is '%s'", properties.GetString(conf.P_MPLAYER_FIFO, "/tmp/mplayer.fifo"))
+    log.Printf("Make sure MPlayer is configured to read its input from this FIFO!\n")
 
     registerHandlers()
-    err := http.ListenAndServe(properties.GetString("BindAddress", ":8080"), nil)
+    err := http.ListenAndServe(properties.GetString(conf.P_BIND_ADDRESS, ":8080"), nil)
     if err != nil {
-        log.Fatalf("Failed to bind to address '%s': %s", properties.GetString("BindAddress", ":8080"), err)
+        log.Fatalf("Failed to bind to address '%s': %s", properties.GetString(conf.P_BIND_ADDRESS, ":8080"), err)
     }
 }

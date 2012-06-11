@@ -7,6 +7,13 @@
         <link rel="stylesheet" href="/static/css/jquery.mobile-1.1.0.min.css" />
         <link rel="stylesheet" href="my.css" />
         <style>
+            label.ui-input-text {
+                font-weight: bold;
+            }
+
+            .note {
+                font-size: smaller;
+            }
         </style>
         <script src="/static/js/jquery-1.7.1.min.js"> </script>
         <script src="/static/js/jquery.mobile-1.1.0.min.js"> </script>
@@ -18,18 +25,32 @@
                 <div data-role="navbar" data-iconpos="top">
                     <ul>
                         <li>
-                            <a href="/index" data-theme="b" data-icon="home" data-ajax="false" class="ui-btn-active"> Control </a>
+                            <a href="/index" data-theme="b" data-icon="home" data-ajax="false"> Control </a>
                         </li>
                         <li>
                             <a href="/listing" data-theme="b" data-icon="search" data-ajax="false"> Browse Media </a>
                         </li>
                         <li>
-                            <a href="/config" data-theme="b" data-icon="gear" data-ajax="false"> Configuration </a>
+                            <a href="/config" data-theme="b" data-icon="gear" data-ajax="false" class="ui-btn-active"> Configuration </a>
                         </li>
                     </ul>
                 </div>
             </div>
             <div data-role="content">
+                <form id="derp">
+                    <label for="fifo">Mplayer FIFO:</label>
+                    <input type="text" name="name" id="fifo" value="{{ .MplayerFifo }}"  />
+
+                    <label for="mediadir">Media Directory:</label>
+                    <input type="text" name="name" id="mediadir" value="{{ .MediaDir}}"  />
+
+                    <label for="bindaddress">Wasp bind address:</label>
+                    <input type="text" name="name" id="bindaddress" value="{{ .BindAddress }}"  />
+                    
+                    <span class="note">Note: Changing the bind address forces you to connect to this same port after a Wasp restart.</span>
+
+                    <button type="submit">Save settings</button>
+                </form>
             </div>
         </div>
         <script>
