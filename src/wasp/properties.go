@@ -1,7 +1,6 @@
 // Properties, inspired by goproperties, Java Properties. Highly, highly 
 // simplified, but meets the needs.
-
-package conf
+package main
 
 import (
     "fmt"
@@ -26,15 +25,18 @@ type Properties map[string]string
 
 // Constants (keys) we're using as property names.
 const (
-    P_MEDIA_DIR string = "MediaDirectory"
-    P_BIND_ADDRESS string = "BindAddress"
-    P_MPLAYER_FIFO string = "MplayerFifo"
+    PROPERTY_MEDIA_DIR string = "MediaDirectory"
+    PROPERTY_BIND_ADDRESS string = "BindAddress"
+    PROPERTY_MPLAYER_FIFO string = "MplayerFifo"
 )
 
 //================================================================================
 
-// Gets the filename as a string, using the home directory.
-func DefaultFileName() (filename string) {
+// This function returns the default configuration filename, based on 
+// the constant PROPERTIES_FILE. It attempts to get the current user's
+// directory, and then concatenate it with the PROPERTIES_FILE value.
+// The returned string is an absolute path to the file.
+func (p* Properties) DefFileName() string {
     usr, uerr := user.Current()
     if uerr != nil {
         log.Fatalf("Unable to get the current user's directory: %s", uerr)
@@ -43,8 +45,11 @@ func DefaultFileName() (filename string) {
     return usr.HomeDir + PROPERTIES_FILE
 }
 
-func FileExists(filename string) bool {
-    _, err := os.Stat(filename)
+// Check whether the default properties file exists, by stat-ing it. The
+// filename being tested is returned by DefFileName(). On error, return false
+// otherwise return true.
+func (p* Properties) FileExists() bool {
+    _, err := os.Stat(p.DefFileName())
     if err != nil {
         return false
     }
@@ -52,14 +57,12 @@ func FileExists(filename string) bool {
     return true
 }
 
-//================================================================================
-
-// Sets default properties
+// Sets default properties. Mainly used at first initialization of Wasp.
 func (p *Properties) SetDefaults() {
     q := *p
-    q[P_MEDIA_DIR] = "/"
-    q[P_BIND_ADDRESS] = ":8080"
-    q[P_MPLAYER_FIFO] = "/tmp/mplayer.fifo"
+    q[PROPERTY_MEDIA_DIR] = "/"
+    q[PROPERTY_BIND_ADDRESS] = ":8080"
+    q[PROPERTY_MPLAYER_FIFO] = "/tmp/mplayer.fifo"
 }
 
 // Loads properties from a file.

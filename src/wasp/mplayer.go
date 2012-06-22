@@ -1,4 +1,4 @@
-package mplayer
+package main
 
 import (
     "errors"
@@ -31,6 +31,9 @@ type Mplayer struct {
     // FIFO path.
     PathFifo string
 
+    // Volume previously set. Used to set every new playable item to
+    // the previously set volume.
+    VolumeValue Percentage
 }
 
 // Generic interface to send a command to the Mplayer FIFO.
@@ -123,7 +126,7 @@ func (m* Mplayer) SeekPercentage(value Percentage) (err error) {
 // be succesfully changed when a file is loaded.
 //
 // Mplayer slave command: volume <value> [abs]
-func (m* Mplayer) Volume(value Percentage) (err error) {
+func (m* Mplayer) SetVolume(value Percentage) (err error) {
     return m.sendCommand(fmt.Sprintf("volume %f 1\n", value.Clamped()))
 }
 

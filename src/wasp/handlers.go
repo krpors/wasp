@@ -10,9 +10,6 @@ import (
     "html/template"
     "path"
     "strconv"
-
-    "wasp/mplayer"
-    "wasp/conf"
 )
 
 var templateIndex = template.Must(template.ParseFiles("./site/templates/index.html"))
@@ -82,8 +79,8 @@ func volumeHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     // use a percentage as volume (it will be clamped automatically)
-    log.Printf("Volume is %4.1f", mplayer.Percentage(vol).Clamped())
-    err = mpl.Volume(mplayer.Percentage(vol))
+    log.Printf("Volume is %4.1f", Percentage(vol).Clamped())
+    err = mpl.SetVolume(Percentage(vol))
     if err != nil {
         log.Printf("Volume changing failed: %s", err)
     }
@@ -230,9 +227,9 @@ func configHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     cd := ConfigData{}
-    cd.MediaDir = properties.GetString(conf.P_MEDIA_DIR, "/")
-    cd.BindAddress = properties.GetString(conf.P_BIND_ADDRESS, ":8080")
-    cd.MplayerFifo = properties.GetString(conf.P_MPLAYER_FIFO, "/tmp/mplayer.fifo")
+    cd.MediaDir = properties.GetString(PROPERTY_MEDIA_DIR, "/")
+    cd.BindAddress = properties.GetString(PROPERTY_BIND_ADDRESS, ":8080")
+    cd.MplayerFifo = properties.GetString(PROPERTY_MPLAYER_FIFO, "/tmp/mplayer.fifo")
 
     templateConfig.Execute(w, cd)
 }
