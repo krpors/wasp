@@ -9,7 +9,6 @@ import (
     "sort"
     "html/template"
     "path"
-    "strconv"
 )
 
 var templateIndex = template.Must(template.ParseFiles("./site/templates/index.html"))
@@ -18,82 +17,9 @@ var templateConfig = template.Must(template.ParseFiles("./site/templates/config.
 
 //==============================================================================
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
+func handlerIndex(w http.ResponseWriter, r *http.Request) {
+    log.Printf("Index requested\n")
     templateIndex.Execute(w, nil)
-}
-
-func testHandler(w http.ResponseWriter, r *http.Request) {
-    err := mpl.Loadfile("/home/krpors/fey.mp4")
-    if err != nil {
-        log.Printf("Unable to start media: %s", err)
-    }
-}
-
-// Handles the /play URI. Formvalue 'file' is the relative filename to
-// be playing. The base directory is the config.MediaDir.
-func playHandler(w http.ResponseWriter, r *http.Request) {
-    file := r.FormValue("file")
-    if file == "" {
-        // TODO: return an error or something for the page to display.
-        // Preferably in JSON?
-        return
-    }
-
-    mediadir := properties.GetString("MediaDirectory", "/")
-    file = filepath.Join(mediadir, file)
-
-    err := mpl.Loadfile(file)
-    if err != nil {
-        log.Printf("Unable to start file '%s'. Error is: %s", file, err)
-        return
-    }
-    log.Printf("Playing '%s'", file)
-}
-
-func pauseHandler(w http.ResponseWriter, r *http.Request) {
-    log.Println("Toggling pause")
-
-    err := mpl.Pause()
-    if err != nil {
-        log.Printf("Unable to pause Mplayer: %s", err)
-    }
-}
-
-func stopHandler(w http.ResponseWriter, r *http.Request) {
-    log.Println("Stopping playback")
-
-    err := mpl.Stop()
-    if err != nil {
-        log.Printf("Unable to stop Mplayer: %s", err)
-    }
-}
-
-func volumeHandler(w http.ResponseWriter, r *http.Request) {
-    log.Println("Changing volume.")
-
-    //log.Println("Content: ", r.FormValue("volume"))
-    vol, err := strconv.ParseFloat(r.FormValue("volume"), 32)
-    if err != nil {
-        // if we fail to convert the volume, set it to 50.0
-        vol = 50.0
-    }
-
-    // use a percentage as volume (it will be clamped automatically)
-    log.Printf("Volume is %4.1f", Percentage(vol).Clamped())
-    err = mpl.SetVolume(Percentage(vol))
-    if err != nil {
-        log.Printf("Volume changing failed: %s", err)
-    }
-}
-
-func muteHandler(w http.ResponseWriter, r *http.Request) {
-    log.Println("Muting!?")
-    muting, err := strconv.ParseBool(r.FormValue("mute"))
-    if err != nil {
-        muting = false
-    }
-
-    mpl.Mute(muting)
 }
 
 //================================================================================
@@ -117,7 +43,7 @@ var allowedExtensions = map[string]bool {
 // The listing handler generates a list of directories and files
 // which can be clicked on to browse with. The request path is 
 // given in the http.Request using the parameter name `p'.
-func listingHandler(w http.ResponseWriter, r *http.Request) {
+func handlerListing(w http.ResponseWriter, r *http.Request) {
     // 'Temporary' struct to use for the template
     type ListingData struct {
         ParentDir string        // parent directory
@@ -219,7 +145,7 @@ func listingHandler(w http.ResponseWriter, r *http.Request) {
     templateListing.Execute(w, data)
 }
 
-func configHandler(w http.ResponseWriter, r *http.Request) {
+func handlerConfig(w http.ResponseWriter, r *http.Request) {
     type ConfigData struct {
         MediaDir string
         MplayerFifo string
@@ -232,32 +158,4 @@ func configHandler(w http.ResponseWriter, r *http.Request) {
     cd.MplayerFifo = properties.GetString(PROPERTY_MPLAYER_FIFO, "/tmp/mplayer.fifo")
 
     templateConfig.Execute(w, cd)
-}
-
-//================================================================================
-
-// Registers URI handlers once.
-func registerHandlers() {
-    // regular handlers:
-    http.HandleFunc("/listing", listingHandler)
-    http.HandleFunc("/index", indexHandler)
-    http.HandleFunc("/config", configHandler)
-
-    http.HandleFunc("/test", testHandler)
-    http.HandleFunc("/play", playHandler)
-    http.HandleFunc("/stop", stopHandler)
-    http.HandleFunc("/pause", pauseHandler)
-    http.HandleFunc("/volume", volumeHandler)
-    http.HandleFunc("/mute", muteHandler)
-
-    // static (JS, CSS) content handler:
-    pwd, err := os.Getwd()
-    pwd = filepath.Join(pwd, "/site/")
-
-    if err != nil {
-        log.Fatalf("Unable to get current working directory: %s", err)
-        return
-    }
-
-    http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(pwd))))
 }

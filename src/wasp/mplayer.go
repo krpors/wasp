@@ -4,8 +4,10 @@ import (
     "errors"
     "os"
     "fmt"
+    "log"
     "io/ioutil"
     "strings"
+    "syscall" // to create a named pipe.
 )
 
 // Type Percentage is a float32 which can be used to set certain values in
@@ -66,6 +68,24 @@ func (m* Mplayer) FifoOk() (err error) {
     }
 
     return nil
+}
+
+// Attempts to create the FIFO automatically. Can return an error if it failed,
+// for instance if permission failures occur (no permission to write to path).
+func (m* Mplayer) CreateFifo() (err error) {
+    err = m.FifoOk()
+    if err != nil {
+        err = syscall.Mkfifo(m.PathFifo, 0644)
+        if err != nil {
+            log.Printf("Could not create FIFO: `%s'", m.PathFifo)
+            return err
+        } else {
+            log.Printf("FIFO created: `%s'", m.PathFifo)
+            return nil
+        }
+    }
+
+    return err
 }
 
 // Loads a new file, from `file'. Returns an error when the named pipe
