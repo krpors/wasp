@@ -47,8 +47,9 @@ func main() {
     log.Printf("Input FIFO filename is '%s'", properties.GetString(PROPERTY_MPLAYER_FIFO, "/tmp/mplayer.fifo"))
     log.Printf("Make sure MPlayer is configured to read its input from this FIFO!\n")
 
-    registerHttpHandlers()
-    err := http.ListenAndServe(properties.GetString(PROPERTY_BIND_ADDRESS, ":8080"), nil)
+    handler := RegexHandler{}
+    registerHttpHandlers(&handler)
+    err := http.ListenAndServe(properties.GetString(PROPERTY_BIND_ADDRESS, ":8080"), &handler)
     if err != nil {
         log.Fatalf("Failed to bind to address '%s': %s", properties.GetString(PROPERTY_BIND_ADDRESS, ":8080"), err)
     }
