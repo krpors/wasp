@@ -36,7 +36,7 @@
         <script src="/static/js/jquery.mobile-1.1.0.min.js"> </script>
     </head>
     <body>
-        <div data-role="page" id="listing">
+        <div data-role="page" id="browse">
             <div data-theme="d" data-role="header" data-position="fixed">
                 <h3> Wasp </h3>
                 <div data-role="navbar" data-iconpos="top">
@@ -45,7 +45,7 @@
                             <a href="/" data-theme="b" data-icon="home" data-ajax="false"> Control </a>
                         </li>
                         <li>
-                            <a href="/listing" data-theme="b" data-icon="search" class="ui-btn-active" data-ajax="false"> Browse Media </a>
+                            <a href="/browse" data-theme="b" data-icon="search" class="ui-btn-active" data-ajax="false"> Browse Media </a>
                         </li>
                         <li>
                             <a href="/config" data-theme="b" data-icon="gear" data-ajax="false"> Configuration </a>
@@ -56,13 +56,13 @@
             </div>
             <div data-role="content">
                 <ul data-role="listview" data-theme="a" data-icon="gear">
-                    <li><a href="listing?p={{ .ParentDir }}">Back to {{ .ParentDir }}</a></li>
+                    <li><a href="browse?p={{ .ParentDir }}">Back to {{ .ParentDir }}</a></li>
                 </ul>
                 <p/>
                 <ul id="directories" data-role="listview" data-theme="c" data-icon="gear">
                     {{ $RequestPath := .RequestPath }}
                     {{ range .Directories }}
-                        <li><a href="listing?p={{ $RequestPath }}/{{ . }}" data-transition="slide"><img src="/static/images/folder.png" class="ui-li-icon"/>{{ . }}</a></li>
+                        <li><a href="browse?p={{ $RequestPath }}/{{ . }}" data-transition="slide"><img src="/static/images/folder.png" class="ui-li-icon"/>{{ . }}</a></li>
                     {{ end }}
                 </ul>
                 <p/>

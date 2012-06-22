@@ -12,7 +12,7 @@ import (
 )
 
 var templateIndex = template.Must(template.ParseFiles("./site/templates/index.html"))
-var templateListing = template.Must(template.ParseFiles("./site/templates/listing.html"))
+var templateBrowse = template.Must(template.ParseFiles("./site/templates/browse.html"))
 var templateConfig = template.Must(template.ParseFiles("./site/templates/config.html"))
 
 //==============================================================================
@@ -40,10 +40,10 @@ var allowedExtensions = map[string]bool {
     ".mpeg": true,
 }
 
-// The listing handler generates a list of directories and files
+// The browse handler generates a list of directories and files
 // which can be clicked on to browse with. The request path is 
 // given in the http.Request using the parameter name `p'.
-func handlerListing(w http.ResponseWriter, r *http.Request) {
+func handlerBrowse(w http.ResponseWriter, r *http.Request) {
     // 'Temporary' struct to use for the template
     type ListingData struct {
         ParentDir string        // parent directory
@@ -69,7 +69,7 @@ func handlerListing(w http.ResponseWriter, r *http.Request) {
         data := ListingData{}
         data.ParentDir = path.Clean(path.Dir(requestPath))
         data.Error = "Contents could not be listed."
-        templateListing.Execute(w, data)
+        templateBrowse.Execute(w, data)
         return
     }
 
@@ -142,7 +142,7 @@ func handlerListing(w http.ResponseWriter, r *http.Request) {
     }
 
     // Execute the template, write outcome to `w'.
-    templateListing.Execute(w, data)
+    templateBrowse.Execute(w, data)
 }
 
 func handlerConfig(w http.ResponseWriter, r *http.Request) {

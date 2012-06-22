@@ -7,6 +7,46 @@ import (
     "path/filepath"
     "regexp"
 )
+/*
+================================================================================
+
+Template renderers:
+    /                   -> root, index, main page
+    /browse             -> generates browsable listing
+    /config             -> views configuration
+
+Ajax 'setters', i.e. don't return data
+    /ajax/play          -> plays the file
+    /ajax/stop          -> stops playback
+    /ajax/pause         -> pauses playback
+    /ajax/volume        -> sets volume
+    /ajax/seek          -> seeks an x amount of seconds?
+    /ajax/mute          -> mutes volume
+    /ajax/properties    -> writes properties to file
+
+Ajax 'getters', i.e. return data for async display.
+    /ajax/get_list      -> returns a JSONified list of directories and files.
+                           This is planned for a possible future Android/iOS app.
+                           Probably like:
+        {
+            "directories": ["clips", "movies", "series"],
+            "files": [ "hi.mpg", "test.mp4", "song.mp3" ]
+        }
+
+    /ajax/get_status    -> returns JSON data as follows?
+        { 
+            "muted": true,
+            "volume": 50,
+            "file": "/media/share/movie.mp4",
+            "stopped": false,
+            "properties" {
+                "MediaDirectory": "/media/share",
+                "BindAddress": ":8080",
+                "MplayerFifo": "/tmp/mplayer.fifo"
+            }
+        }
+================================================================================
+*/
 
 type route struct {
     pattern *regexp.Regexp
@@ -56,7 +96,7 @@ func (h *RegexHandler) ServeHTTP (w http.ResponseWriter, r *http.Request) {
 func registerHttpHandlers(handler *RegexHandler) {
     // regular handlers:
     handler.HandleFunc("^/$", handlerIndex)
-    handler.HandleFunc("^/listing.*$", handlerListing)
+    handler.HandleFunc("^/browse.*$", handlerBrowse)
     handler.HandleFunc("^/config$", handlerConfig)
 
     handler.HandleFunc("^/test", handlerTest)
@@ -65,7 +105,8 @@ func registerHttpHandlers(handler *RegexHandler) {
     handler.HandleFunc("^/pause", handlerPause)
     handler.HandleFunc("^/volume", handlerVolume)
     handler.HandleFunc("^/mute", handlerMute)
-    
+
+
     // static (JS, CSS) content handler:
     pwd, err := os.Getwd()
     pwd = filepath.Join(pwd, "/site/")
@@ -75,5 +116,5 @@ func registerHttpHandlers(handler *RegexHandler) {
         return
     }
 
-    handler.Handle("/static/.*", http.StripPrefix("/static/", http.FileServer(http.Dir(pwd))))
+    handler.Handle("^/static/.*", http.StripPrefix("/static/", http.FileServer(http.Dir(pwd))))
 }
