@@ -99,7 +99,7 @@ func registerHttpHandlers(handler *RegexHandler) {
     handler.HandleFunc("^/browse.*$", handlerBrowse)
     handler.HandleFunc("^/config$", handlerConfig)
 
-    handler.HandleFunc("^/test", handlerTest)
+    handler.HandleFunc("^/ajax/test", handlerTest)
     handler.HandleFunc("^/play", handlerPlay)
     handler.HandleFunc("^/stop", handlerStop)
     handler.HandleFunc("^/pause", handlerPause)

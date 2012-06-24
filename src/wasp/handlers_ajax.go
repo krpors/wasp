@@ -72,7 +72,7 @@ func handlerVolume(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlerMute(w http.ResponseWriter, r *http.Request) {
-    log.Println("Muting!?")
+    log.Println("Muting")
     muting, err := strconv.ParseBool(r.FormValue("mute"))
     if err != nil {
         muting = false
@@ -81,3 +81,6 @@ func handlerMute(w http.ResponseWriter, r *http.Request) {
     mpl.Mute(muting)
 }
 
+func handlerSeek(w http.ResponseWriter, r *http.Request) {
+    log.Println("Seeking")
+}

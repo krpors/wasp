@@ -64,7 +64,7 @@
                     var volume = $(this).val()
                     var request = $.ajax({
                         type: "POST",
-                        url: "/volume",
+                        url: "/ajax/volume",
                         data: { 
                             volume: volume, 
                         },
@@ -74,7 +74,7 @@
                 $("input#testmovie").bind("click", function(event, ui) {
                     var request = $.ajax({
                         type: "POST",
-                        url: "/test",
+                        url: "/ajax/test",
                     });
 
                 });
@@ -82,7 +82,7 @@
                 $("input#pause").bind("click", function(event, ui) {
                     var request = $.ajax({
                         type: "POST",
-                        url: "/pause",
+                        url: "/ajax/pause",
                     });
 
                 });
@@ -90,7 +90,7 @@
                 $("input#stop").bind("click", function(event, ui) {
                     var request = $.ajax({
                         type: "POST",
-                        url: "/stop",
+                        url: "/ajax/stop",
                     });
                     
                     resetToDefaults();
@@ -99,7 +99,7 @@
                 $("input#status").bind("click", function(event, ui) {
                     var request = $.ajax({
                         type: "POST",
-                        url: "/status",
+                        url: "/ajax/status",
                     });
 
                 });
@@ -108,7 +108,7 @@
                     var value = $(this).is(":checked");
                     var request = $.ajax({
                         type: "POST",
-                        url: "/mute",
+                        url: "/ajax/mute",
                         data: {
                             mute : value,
                         }
