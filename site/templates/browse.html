@@ -83,7 +83,7 @@
                 $("li.mediafile").bind("click", function(event, ui) {
                     var request = $.ajax({
                         type: "POST",
-                        url: "/play",
+                        url: "/ajax/play",
                         data: { 
                             file: $(this).attr("data-path"), 
                         },

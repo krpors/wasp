@@ -44,7 +44,6 @@
                         <input type="checkbox" id="mute" name="mute" /> 
                     </fieldset>
                 </div>
-                <input id="testmovie" type="button" data-icon="arrow-u" value="Test movie"/>
                 <input id="pause" type="button" data-icon="arrow-r" value="Pause/unpause"/>
                 <input id="stop" type="button" data-icon="delete" value="Stop playback"/>
                 <input id="status" type="button" data-icon="delete" value="Check status"/>
@@ -69,14 +68,6 @@
                             volume: volume, 
                         },
                     });
-                });
-
-                $("input#testmovie").bind("click", function(event, ui) {
-                    var request = $.ajax({
-                        type: "POST",
-                        url: "/ajax/test",
-                    });
-
                 });
 
                 $("input#pause").bind("click", function(event, ui) {
