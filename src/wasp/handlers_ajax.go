@@ -76,5 +76,13 @@ func handlerMute(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlerSeek(w http.ResponseWriter, r *http.Request) {
-	log.Println("Seeking")
+	val, err := strconv.ParseInt(r.FormValue("seek"), 10, 16)
+	if err != nil {
+		log.Printf("Unable to parse integer for seeking: %s", err)
+		return
+	}
+
+	log.Printf("Seeking relatively %d seconds", val)
+
+	mpl.SeekRelative(int16(val))
 }

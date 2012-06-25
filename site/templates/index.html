@@ -9,6 +9,18 @@
             div.mute-ctrl .ui-slider-switch { 
                 width: 9em 
             }
+
+            .centered {
+                margin:0 auto;
+                margin-left:auto;
+                margin-right:auto;
+                text-align:center;
+            }
+
+            .centered input {
+                padding: 0px;
+                margin: 0px;
+            }
         </style>
         <script src="/static/js/jquery-1.7.1.min.js"> </script>
         <script src="/static/js/jquery.mobile-1.1.0.min.js"> </script>
@@ -32,21 +44,29 @@
                 </div>
             </div>
             <div data-role="content">
-                <div data-role="fieldcontain">
-                    <fieldset data-role="controlgroup">
-                        <label for="slider1"> Volume </label>
-                        <input type="range" name="volumeSlider" id="volume" value="100" min="0" max="100" step="10" data-highlight="false" />
-                    </fieldset>
+                <fieldset data-role="controlgroup">
+                    <label for="slider1"> Volume </label>
+                    <input type="range" name="volumeSlider" id="volume" value="100" min="0" max="100" step="10" data-highlight="false" />
+                </fieldset>
+
+                <fieldset data-role="controlgroup">
+                    <label for="mute">Mute volume</label>
+                    <input type="checkbox" id="mute" name="mute" /> 
+                </fieldset>
+
+                <div data-role="controlgroup" data-type="horizontal" data-mini="false" class="centered">
+                    <input id="seek" data-val="-300" type="button" value="<<<"/> <!-- backward 5 mins -->
+                    <input id="seek" data-val="-60" type="button" value="<<"/>   <!-- backward 1 min  -->
+                    <input id="seek" data-val="-10" type="button" value="<"/>    <!-- backward 10 sec -->
+                    <input id="seek" data-val="10" type="button" value=">"/>     <!-- forward 10 sec  -->
+                    <input id="seek" data-val="60" type="button" value=">>"/>    <!-- forward 1 min   -->
+                    <input id="seek" data-val="300" type="button" value=">>>"/>  <!-- forward 5 mins  -->
                 </div>
+
                 <div data-role="fieldcontain" class="mute-ctrl">
-                    <fieldset data-role="controlgroup">
-                        <label for="mute">Mute volume</label>
-                        <input type="checkbox" id="mute" name="mute" /> 
-                    </fieldset>
+                    <input id="pause" type="button" data-icon="arrow-r" value="Pause/unpause"/>
+                    <input id="stop" type="button" data-icon="delete" value="Stop playback"/>
                 </div>
-                <input id="pause" type="button" data-icon="arrow-r" value="Pause/unpause"/>
-                <input id="stop" type="button" data-icon="delete" value="Stop playback"/>
-                <input id="status" type="button" data-icon="delete" value="Check status"/>
             </div>
         </div>
         <script>
@@ -87,14 +107,6 @@
                     resetToDefaults();
                 });
 
-                $("input#status").bind("click", function(event, ui) {
-                    var request = $.ajax({
-                        type: "POST",
-                        url: "/ajax/status",
-                    });
-
-                });
-
                 $("input#mute").bind("change", function(event, ui) {
                     var value = $(this).is(":checked");
                     var request = $.ajax({
@@ -102,6 +114,18 @@
                         url: "/ajax/mute",
                         data: {
                             mute : value,
+                        }
+                    });
+                });
+
+                $("input#seek").bind("click", function(event, ui) {
+                    // use the data-val attribute to check the amount to seek relatively.
+                    var value = $(this).data("val");
+                    $.ajax({
+                        type: "POST",
+                        url: "/ajax/seek",
+                        data: {
+                            seek: value
                         }
                     });
                 });

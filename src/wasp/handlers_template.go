@@ -58,7 +58,7 @@ func handlerBrowse(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Requesting path '%s'", requestPath)
 
-	mediadir := properties.GetString("MediaDirectory", "/")
+	mediadir := properties.GetString(PROPERTY_MEDIA_DIR, "/")
 	// Get a directory listing of the selected directory. First, concat
 	// the media directory with the request path so we have an absolute path.
 	dir, err := os.Open(path.Join(mediadir, requestPath))

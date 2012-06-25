@@ -105,6 +105,7 @@ func registerHttpHandlers(handler *RegexHandler) {
 	handler.HandleFunc("^/ajax/pause", handlerPause)
 	handler.HandleFunc("^/ajax/volume", handlerVolume)
 	handler.HandleFunc("^/ajax/mute", handlerMute)
+	handler.HandleFunc("^/ajax/seek", handlerSeek)
 
 	// static (JS, CSS) content handler:
 	pwd, err := os.Getwd()

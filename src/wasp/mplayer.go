@@ -126,11 +126,9 @@ func (m *Mplayer) Stop() (err error) {
 
 // Seeks in the current file in a relative manner. When seconds is negative,
 // seek -seconds. If seconds is positive, seek +seconds in the current stream.
-// The amount of seconds is declared as a signed int8, which equals as minus
-// 2 or plus 2 hours seeking position. Should be enough.
 //
 // Mplayer slave command: seek <+/-value> 0\n
-func (m *Mplayer) SeekRelative(seconds int8) (err error) {
+func (m *Mplayer) SeekRelative(seconds int16) (err error) {
 	return m.sendCommand(fmt.Sprintf("seek %d 0\n", seconds))
 }
 
