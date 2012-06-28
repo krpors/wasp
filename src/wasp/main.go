@@ -2,7 +2,9 @@ package main
 
 import (
 	"log"
+	"net"
 	"net/http"
+	"os"
 )
 
 //================================================================================
@@ -14,6 +16,32 @@ var mpl Mplayer
 var properties Properties
 
 //================================================================================
+
+func logMachineIPAddresses() {
+	_,_ = os.Hostname()
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		log.Println("Unable to get a list of network interfaces")
+	}
+
+	log.Println("Available interfaces:")
+	for _, ifs := range interfaces {
+		addresses, err := ifs.Addrs()
+		if err != nil {
+			log.Printf("Unable to get IP address for interface %s", ifs.Name)
+			continue
+		}
+
+		var strAddresses string = ""
+		for i, addr := range addresses {
+			strAddresses += addr.String()
+			if i < len(addresses) - 1 {
+				strAddresses += ", "
+			}
+		}
+		log.Printf("%d: %s (%s)",  ifs.Index, ifs.Name, strAddresses)
+	}
+}
 
 // Entry point. Start it up.
 func main() {
@@ -40,6 +68,8 @@ func main() {
 	if ferr != nil {
 		log.Fatalf("Cannot ", ferr)
 	}
+
+	logMachineIPAddresses()
 
 	log.Printf("Media directory is %s", properties.GetString(PROPERTY_MEDIA_DIR, "/"))
 	log.Printf("Starting to listen on '%s'", properties.GetString(PROPERTY_BIND_ADDRESS, ":8080"))
