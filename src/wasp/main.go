@@ -18,7 +18,7 @@ var properties Properties
 //================================================================================
 
 func logMachineIPAddresses() {
-	_,_ = os.Hostname()
+	_, _ = os.Hostname()
 	interfaces, err := net.Interfaces()
 	if err != nil {
 		log.Println("Unable to get a list of network interfaces")
@@ -35,11 +35,11 @@ func logMachineIPAddresses() {
 		var strAddresses string = ""
 		for i, addr := range addresses {
 			strAddresses += addr.String()
-			if i < len(addresses) - 1 {
+			if i < len(addresses)-1 {
 				strAddresses += ", "
 			}
 		}
-		log.Printf("%d: %s (%s)",  ifs.Index, ifs.Name, strAddresses)
+		log.Printf("%d: %s (%s)", ifs.Index, ifs.Name, strAddresses)
 	}
 }
 
