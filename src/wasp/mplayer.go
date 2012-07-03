@@ -36,6 +36,12 @@ type Mplayer struct {
 	// Volume previously set. Used to set every new playable item to
 	// the previously set volume.
 	VolumeValue Percentage
+
+	// The last/currently played file
+	File string
+
+	// Muted or not
+	Muted bool
 }
 
 // Generic interface to send a command to the Mplayer FIFO.
@@ -93,6 +99,7 @@ func (m *Mplayer) CreateFifo() (err error) {
 //
 // Mplayer slave command: loadfile <file|url>\n
 func (m *Mplayer) Loadfile(file string) (err error) {
+	m.File = file
 	return m.sendCommand(fmt.Sprintf("loadfile \"%s\"\n", file))
 }
 
@@ -100,6 +107,7 @@ func (m *Mplayer) Loadfile(file string) (err error) {
 //
 // Mplayer slave command: mute\n
 func (m *Mplayer) Mute(mute bool) (err error) {
+	m.Muted = mute
 	var muteness string
 	if mute {
 		muteness = "1"
@@ -145,6 +153,7 @@ func (m *Mplayer) SeekPercentage(value Percentage) (err error) {
 //
 // Mplayer slave command: volume <value> [abs]
 func (m *Mplayer) SetVolume(value Percentage) (err error) {
+	m.VolumeValue = value
 	return m.sendCommand(fmt.Sprintf("volume %f 1\n", value.Clamped()))
 }
 

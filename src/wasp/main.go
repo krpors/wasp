@@ -66,7 +66,7 @@ func main() {
 	mpl.PathFifo = properties.GetString(PROPERTY_MPLAYER_FIFO, "/tmp/mplayer.fifo")
 	ferr := mpl.CreateFifo()
 	if ferr != nil {
-		log.Fatalf("Cannot ", ferr)
+		log.Fatalf("Cannot forcefully create necessary FIFO: ", ferr)
 	}
 
 	logMachineIPAddresses()

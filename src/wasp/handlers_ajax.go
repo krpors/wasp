@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"path/filepath"
@@ -85,4 +87,37 @@ func handlerSeek(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Seeking relatively %d seconds", val)
 
 	mpl.SeekRelative(int16(val))
+}
+
+// This handler will get the current status. A JSON object with information
+// of the currently playing file, set volume, whether it's muted, and all 
+// that jazz.
+func handlerGetStatus(w http.ResponseWriter, r *http.Request) {
+	// this struct will be jsonified
+	type Status struct {
+		Muted      bool
+		Volume     float32
+		File       string
+		Properties struct {
+			MediaDirectory string
+			BindAddress    string
+			MplayerFifo    string
+		}
+	}
+
+	s := Status{}
+	s.Muted = mpl.Muted
+	s.Volume = mpl.VolumeValue.Clamped()
+	s.File = mpl.File
+	s.Properties.MediaDirectory = properties.GetString(PROPERTY_MEDIA_DIR, "/")
+	s.Properties.BindAddress = properties.GetString(PROPERTY_BIND_ADDRESS, ":8080")
+	s.Properties.MplayerFifo = properties.GetString(PROPERTY_MPLAYER_FIFO, "/tmp/mplayer.fifo")
+
+	bytes, err := json.Marshal(s)
+	if err != nil {
+		log.Printf("Unable to marshal struct to JSON data: %s", err)
+		return
+	}
+
+	fmt.Fprintf(w, "%s\n", bytes)
 }
