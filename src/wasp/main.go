@@ -78,6 +78,7 @@ func main() {
 
 	handler := RegexHandler{}
 	registerHttpHandlers(&handler)
+
 	err := http.ListenAndServe(properties.GetString(PROPERTY_BIND_ADDRESS, ":8080"), &handler)
 	if err != nil {
 		log.Fatalf("Failed to bind to address '%s': %s", properties.GetString(PROPERTY_BIND_ADDRESS, ":8080"), err)

@@ -28,6 +28,8 @@ const (
 	PROPERTY_MEDIA_DIR    string = "MediaDirectory"
 	PROPERTY_BIND_ADDRESS string = "BindAddress"
 	PROPERTY_MPLAYER_FIFO string = "MplayerFifo"
+	PROPERTY_VIDEO_EXTS string = "VideoExtensions"
+	PROPERTY_AUDIO_EXTS string = "AudioExtensions"
 )
 
 //================================================================================
@@ -63,6 +65,9 @@ func (p *Properties) SetDefaults() {
 	q[PROPERTY_MEDIA_DIR] = "/"
 	q[PROPERTY_BIND_ADDRESS] = ":8080"
 	q[PROPERTY_MPLAYER_FIFO] = "/tmp/mplayer.fifo"
+	q[PROPERTY_VIDEO_EXTS] = ".mp4;.avi;.mpg;.mpeg;.wmv;.flv;.swf"
+	q[PROPERTY_AUDIO_EXTS] = ".mp3;.ogg;.oga;.flac;.wav"
+
 }
 
 // Loads properties from a file.

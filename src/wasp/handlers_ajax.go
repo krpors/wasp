@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-// Handles the /play URI. Formvalue 'file' is the relative filename to
+// Handles the /ajax/play URI. Formvalue 'file' is the relative filename to
 // be playing. The base directory is the config.MediaDir.
 func handlerPlay(w http.ResponseWriter, r *http.Request) {
 	file := r.FormValue("file")
@@ -31,6 +31,8 @@ func handlerPlay(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Playing '%s'", file)
 }
 
+// Handles the /ajax/pause URI. No form, POST or GET value is used, it's just simply
+// pause, or unpause.
 func handlerPause(w http.ResponseWriter, r *http.Request) {
 	log.Println("Toggling pause")
 
@@ -40,6 +42,7 @@ func handlerPause(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Handles the /ajax/stop URI. Stops the stream.
 func handlerStop(w http.ResponseWriter, r *http.Request) {
 	log.Println("Stopping playback")
 
@@ -49,10 +52,10 @@ func handlerStop(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Handles the /ajax/volume URI. It reads the form POST value 'volume'.
 func handlerVolume(w http.ResponseWriter, r *http.Request) {
 	log.Println("Changing volume.")
 
-	//log.Println("Content: ", r.FormValue("volume"))
 	vol, err := strconv.ParseFloat(r.FormValue("volume"), 32)
 	if err != nil {
 		// if we fail to convert the volume, set it to 50.0
@@ -67,6 +70,7 @@ func handlerVolume(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Handles the /ajax/mute URI. Mutes or unmutes the volume.
 func handlerMute(w http.ResponseWriter, r *http.Request) {
 	log.Println("Muting")
 	muting, err := strconv.ParseBool(r.FormValue("mute"))
@@ -77,6 +81,10 @@ func handlerMute(w http.ResponseWriter, r *http.Request) {
 	mpl.Mute(muting)
 }
 
+// Handles the /ajax/seek URI. Seeks in the current stream if applicable.
+// The form value 'seek' is used, and will allow relative seeking (so no
+// absolute position). We're unable to query the current position in a 
+// normal way.
 func handlerSeek(w http.ResponseWriter, r *http.Request) {
 	val, err := strconv.ParseInt(r.FormValue("seek"), 10, 16)
 	if err != nil {
@@ -89,9 +97,8 @@ func handlerSeek(w http.ResponseWriter, r *http.Request) {
 	mpl.SeekRelative(int16(val))
 }
 
-// This handler will get the current status. A JSON object with information
-// of the currently playing file, set volume, whether it's muted, and all 
-// that jazz.
+// Handles the /ajax/get_status URI. A JSON object with information of the 
+// currently playing file, set volume, whether it's muted, and all that jazz.
 func handlerGetStatus(w http.ResponseWriter, r *http.Request) {
 	// this struct will be jsonified
 	type Status struct {
@@ -120,4 +127,20 @@ func handlerGetStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintf(w, "%s\n", bytes)
+}
+
+// Handles the /ajax/get_dirlist URI. Returns a directory list using the 
+// DirListData struct, except it's JSON marshaled.
+func handlerGetDirList(w http.ResponseWriter, r *http.Request) {
+	values := r.URL.Query()
+	requestPath := values.Get("p")
+
+    dld, _ := getDirectoryList(requestPath) 
+    bytes, err := json.Marshal(dld)
+    if err != nil {
+        log.Printf("Unable to marshal struct to JSON data: %s", err)
+        return
+    }
+
+    fmt.Fprintf(w, "%s\n", bytes)
 }
