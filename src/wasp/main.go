@@ -12,8 +12,14 @@ import (
 // The Mplayer struct we're about to use.
 var mpl Mplayer
 
-// The 'global' configuration properties
+// The 'global' configuration properties.
 var properties Properties
+
+// The allowed video extensions.
+var extensionsVideo AllowedExtensions
+
+// The allowed audio extensions
+var extensionsAudio AllowedExtensions
 
 //================================================================================
 
@@ -70,6 +76,11 @@ func main() {
 	}
 
 	logMachineIPAddresses()
+
+    extensionsVideo = make(AllowedExtensions)
+    extensionsVideo.Parse(properties.GetString(PROPERTY_VIDEO_EXTS, ""))
+    extensionsAudio = make(AllowedExtensions)
+    extensionsAudio.Parse(properties.GetString(PROPERTY_AUDIO_EXTS, ""))
 
 	log.Printf("Media directory is %s", properties.GetString(PROPERTY_MEDIA_DIR, "/"))
 	log.Printf("Starting to listen on '%s'", properties.GetString(PROPERTY_BIND_ADDRESS, ":8080"))

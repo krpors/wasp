@@ -6,6 +6,7 @@ import (
     "os"
     "path"
     "sort"
+    "strings"
 )
 
  // Struct to generate a directory listing
@@ -33,11 +34,16 @@ var allowedExtensions = map[string]bool{
 	".mpeg": true,
 }
 
-// Gets the allowed video extensions from the properties.
-func getAllowedVideoExts(s string) map[string]bool {
-    x := make(map[string]bool)
-    x["as"] = true
-    return x
+// Simple type with allowed extensions.
+type AllowedExtensions map[string]bool
+
+// Parses a string in the form of ".ext;.otherext;.bla". Splits based on
+// semicolon, and each entry is added to the map value.
+func (a *AllowedExtensions) Parse(s string) {
+    log.Printf("Parsing extensions: %s", s)
+    for _, ext := range strings.Split(s, ";") {
+        (*a)[ext] = true
+    }
 }
 
 // This function gets a directory listing of the requested path. The requested
@@ -93,7 +99,7 @@ func getDirectoryList(requestPath string) (DirListData, error) {
 		} else {
 			// only allow certain kind of extensions.
 			extension := filepath.Ext(fi.Name())
-			if allowedExtensions[extension] {
+			if extensionsVideo[extension] || extensionsAudio[extension] {
                 dld.Files = append(dld.Files, fi.Name())
 			}
 		}
