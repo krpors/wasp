@@ -23,8 +23,8 @@ func handlerBrowse(w http.ResponseWriter, r *http.Request) {
 	values := r.URL.Query()
 	requestPath := values.Get("p")
 
-    dld, _ := getDirectoryList(requestPath)
-    templateBrowse.Execute(w, dld)
+	dld, _ := getDirectoryList(requestPath)
+	templateBrowse.Execute(w, dld)
 }
 
 //================================================================================

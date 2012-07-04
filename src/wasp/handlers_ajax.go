@@ -135,12 +135,12 @@ func handlerGetDirList(w http.ResponseWriter, r *http.Request) {
 	values := r.URL.Query()
 	requestPath := values.Get("p")
 
-    dld, _ := getDirectoryList(requestPath) 
-    bytes, err := json.Marshal(dld)
-    if err != nil {
-        log.Printf("Unable to marshal struct to JSON data: %s", err)
-        return
-    }
+	dld, _ := getDirectoryList(requestPath)
+	bytes, err := json.Marshal(dld)
+	if err != nil {
+		log.Printf("Unable to marshal struct to JSON data: %s", err)
+		return
+	}
 
-    fmt.Fprintf(w, "%s\n", bytes)
+	fmt.Fprintf(w, "%s\n", bytes)
 }

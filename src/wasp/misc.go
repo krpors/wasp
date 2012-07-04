@@ -2,20 +2,20 @@ package main
 
 import (
 	"log"
+	"os"
+	"path"
 	"path/filepath"
-    "os"
-    "path"
-    "sort"
-    "strings"
+	"sort"
+	"strings"
 )
 
- // Struct to generate a directory listing
+// Struct to generate a directory listing
 type DirListData struct {
-    ParentDir   string   // parent directory
-    RequestPath string   // requested path
-    Directories []string // slice of directories
-    Files       []string // slice of files
-    Error       string   // possible error. May be empty.
+	ParentDir   string   // parent directory
+	RequestPath string   // requested path
+	Directories []string // slice of directories
+	Files       []string // slice of files
+	Error       string   // possible error. May be empty.
 }
 
 // list of allowed extensions for the listing handler to display.
@@ -40,10 +40,10 @@ type AllowedExtensions map[string]bool
 // Parses a string in the form of ".ext;.otherext;.bla". Splits based on
 // semicolon, and each entry is added to the map value.
 func (a *AllowedExtensions) Parse(s string) {
-    log.Printf("Parsing extensions: %s", s)
-    for _, ext := range strings.Split(s, ";") {
-        (*a)[ext] = true
-    }
+	log.Printf("Parsing extensions: %s", s)
+	for _, ext := range strings.Split(s, ";") {
+		(*a)[ext] = true
+	}
 }
 
 // This function gets a directory listing of the requested path. The requested
@@ -59,26 +59,26 @@ func (a *AllowedExtensions) Parse(s string) {
 // returned, along with an empty DirListData{}.
 
 func getDirectoryList(requestPath string) (DirListData, error) {
-    // our dir list data instance. We're going to fill and return this one in
-    // this function.
-    dld := DirListData{}
-    dld.ParentDir = path.Clean(path.Dir(requestPath))
-    dld.RequestPath = path.Clean(requestPath)
+	// our dir list data instance. We're going to fill and return this one in
+	// this function.
+	dld := DirListData{}
+	dld.ParentDir = path.Clean(path.Dir(requestPath))
+	dld.RequestPath = path.Clean(requestPath)
 
 	mediadir := properties.GetString(PROPERTY_MEDIA_DIR, "/")
 	// Get a directory listing of the selected directory. First, concat
 	// the media directory with the request path so we have an absolute path.
-    fullpath := path.Join(mediadir, requestPath)
+	fullpath := path.Join(mediadir, requestPath)
 	dir, err := os.Open(fullpath)
 	if err != nil {
 		// This might happen if we aren't allowed to open a directory
 		// due to permission issues.
 		log.Printf("Unable to open directory: %s", err)
 		dld.Error = "Contents could not be listed."
-        return dld, err
+		return dld, err
 	}
 
-    log.Printf("Listing directory `%s'", fullpath)
+	log.Printf("Listing directory `%s'", fullpath)
 
 	// Fetch the actual file information slice.
 	fileinfos, err := dir.Readdir(0)
@@ -95,12 +95,12 @@ func getDirectoryList(requestPath string) (DirListData, error) {
 
 		if fi.IsDir() {
 			//dirList.PushBack(fi.Name())
-            dld.Directories = append(dld.Directories, fi.Name())
+			dld.Directories = append(dld.Directories, fi.Name())
 		} else {
 			// only allow certain kind of extensions.
 			extension := filepath.Ext(fi.Name())
 			if extensionsVideo[extension] || extensionsAudio[extension] {
-                dld.Files = append(dld.Files, fi.Name())
+				dld.Files = append(dld.Files, fi.Name())
 			}
 		}
 	}
@@ -108,5 +108,5 @@ func getDirectoryList(requestPath string) (DirListData, error) {
 	sort.Strings(dld.Directories)
 	sort.Strings(dld.Files)
 
-    return dld, nil
+	return dld, nil
 }

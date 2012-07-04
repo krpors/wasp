@@ -28,8 +28,8 @@ const (
 	PROPERTY_MEDIA_DIR    string = "MediaDirectory"
 	PROPERTY_BIND_ADDRESS string = "BindAddress"
 	PROPERTY_MPLAYER_FIFO string = "MplayerFifo"
-	PROPERTY_VIDEO_EXTS string = "VideoExtensions"
-	PROPERTY_AUDIO_EXTS string = "AudioExtensions"
+	PROPERTY_VIDEO_EXTS   string = "VideoExtensions"
+	PROPERTY_AUDIO_EXTS   string = "AudioExtensions"
 )
 
 //================================================================================
