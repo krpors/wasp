@@ -49,6 +49,11 @@ func logMachineIPAddresses() {
 	}
 }
 
+// This function initializes the application with all its properties. Will
+// re-read configuration files if necessary.
+func initialize() {
+}
+
 // Entry point. Start it up.
 func main() {
 	log.Println("Wasp starting")
