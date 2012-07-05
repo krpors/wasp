@@ -14,8 +14,7 @@ import (
 func handlerPlay(w http.ResponseWriter, r *http.Request) {
 	file := r.FormValue("file")
 	if file == "" {
-		// TODO: return an error or something for the page to display.
-		// Preferably in JSON?
+		http.Error(w, "File is empty", http.StatusBadRequest)
 		return
 	}
 
@@ -147,4 +146,21 @@ func handlerGetDirList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintf(w, "%s\n", bytes)
+}
+
+func handlerSetConfig(w http.ResponseWriter, r *http.Request) {
+	properties[PROPERTY_MPLAYER_FIFO] = r.FormValue("fifo")
+	properties[PROPERTY_BIND_ADDRESS] = r.FormValue("bindaddress")
+	properties[PROPERTY_MEDIA_DIR] = r.FormValue("mediadir")
+	properties[PROPERTY_VIDEO_EXTS] = r.FormValue("videoexts")
+	properties[PROPERTY_AUDIO_EXTS] = r.FormValue("audioexts")
+
+	if err := properties.Save(properties.DefFileName()); err != nil {
+		http.Error(w, "Unable to persist settings", http.StatusInternalServerError)
+		return
+	}
+
+	log.Printf("Settings saved")
+
+	handlerConfig(w, r)
 }

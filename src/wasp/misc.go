@@ -18,31 +18,16 @@ type DirListData struct {
 	Error       string   // possible error. May be empty.
 }
 
-// list of allowed extensions for the listing handler to display.
-var allowedExtensions = map[string]bool{
-	".mp4":  true,
-	".avi":  true,
-	".mp3":  true,
-	".ogg":  true,
-	".oga":  true,
-	".mpg":  true,
-	".wmv":  true,
-	".flv":  true,
-	".swf":  true,
-	".vob":  true,
-	".flac": true,
-	".mpeg": true,
-}
-
 // Simple type with allowed extensions.
 type AllowedExtensions map[string]bool
 
 // Parses a string in the form of ".ext;.otherext;.bla". Splits based on
-// semicolon, and each entry is added to the map value.
+// semicolon, and each entry is added to the map value. Extensions will be
+// put in the map lowercased for comparison.
 func (a *AllowedExtensions) Parse(s string) {
 	log.Printf("Parsing extensions: %s", s)
 	for _, ext := range strings.Split(s, ";") {
-		(*a)[ext] = true
+		(*a)[strings.ToLower(ext)] = true
 	}
 }
 
@@ -98,7 +83,7 @@ func getDirectoryList(requestPath string) (DirListData, error) {
 			dld.Directories = append(dld.Directories, fi.Name())
 		} else {
 			// only allow certain kind of extensions.
-			extension := filepath.Ext(fi.Name())
+			extension := strings.ToLower(filepath.Ext(fi.Name()))
 			if extensionsVideo[extension] || extensionsAudio[extension] {
 				dld.Files = append(dld.Files, fi.Name())
 			}

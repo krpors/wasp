@@ -36,21 +36,21 @@
                 </div>
             </div>
             <div data-role="content">
-                <form id="derp">
+                <form action="/ajax/set_config" method="post" id="derp">
                     <label for="fifo">Mplayer FIFO:</label>
-                    <input type="text" name="name" id="fifo" value="{{ .MplayerFifo }}"  />
+                    <input type="text" name="fifo" id="fifo" value="{{ .MplayerFifo }}"  />
 
                     <label for="mediadir">Media Directory:</label>
-                    <input type="text" name="name" id="mediadir" value="{{ .MediaDir}}"  />
+                    <input type="text" name="mediadir" id="mediadir" value="{{ .MediaDir}}"  />
 
                     <label for="videoexts">Video extensions:</label>
-                    <input type="text" name="name" id="videoexts" value="{{ .VideoExtensions }}"  />
+                    <input type="text" name="videoexts" id="videoexts" value="{{ .VideoExtensions }}"  />
 
                     <label for="audioexts">Audio extensions:</label>
-                    <input type="text" name="name" id="audioexts" value="{{ .AudioExtensions }}"  />
+                    <input type="text" name="audioexts" id="audioexts" value="{{ .AudioExtensions }}"  />
 
                     <label for="bindaddress">Wasp bind address:</label>
-                    <input type="text" name="name" id="bindaddress" value="{{ .BindAddress }}"  />
+                    <input type="text" name="bindaddress" id="bindaddress" value="{{ .BindAddress }}"  />
                     
                     <span class="note">Note: Changing the bind address forces you to connect to this same port after a Wasp restart.</span>
 
