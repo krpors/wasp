@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 	"strings"
-	"syscall" // to create a named pipe.
+	"syscall"
 )
 
 // Type Percentage is a float32 which can be used to set certain values in

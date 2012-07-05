@@ -106,9 +106,11 @@ func handlerGetStatus(w http.ResponseWriter, r *http.Request) {
 		Volume     float32
 		File       string
 		Properties struct {
-			MediaDirectory string
-			BindAddress    string
-			MplayerFifo    string
+			MediaDirectory  string
+			BindAddress     string
+			MplayerFifo     string
+			VideoExtensions string
+			AudioExtensions string
 		}
 	}
 
@@ -119,6 +121,8 @@ func handlerGetStatus(w http.ResponseWriter, r *http.Request) {
 	s.Properties.MediaDirectory = properties.GetString(PROPERTY_MEDIA_DIR, "/")
 	s.Properties.BindAddress = properties.GetString(PROPERTY_BIND_ADDRESS, ":8080")
 	s.Properties.MplayerFifo = properties.GetString(PROPERTY_MPLAYER_FIFO, "/tmp/mplayer.fifo")
+	s.Properties.VideoExtensions = properties.GetString(PROPERTY_VIDEO_EXTS, "")
+	s.Properties.AudioExtensions = properties.GetString(PROPERTY_AUDIO_EXTS, "")
 
 	bytes, err := json.Marshal(s)
 	if err != nil {

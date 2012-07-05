@@ -31,15 +31,19 @@ func handlerBrowse(w http.ResponseWriter, r *http.Request) {
 
 func handlerConfig(w http.ResponseWriter, r *http.Request) {
 	type ConfigData struct {
-		MediaDir    string
-		MplayerFifo string
-		BindAddress string
+		MediaDir        string
+		MplayerFifo     string
+		BindAddress     string
+		VideoExtensions string
+		AudioExtensions string
 	}
 
 	cd := ConfigData{}
 	cd.MediaDir = properties.GetString(PROPERTY_MEDIA_DIR, "/")
 	cd.BindAddress = properties.GetString(PROPERTY_BIND_ADDRESS, ":8080")
 	cd.MplayerFifo = properties.GetString(PROPERTY_MPLAYER_FIFO, "/tmp/mplayer.fifo")
+	cd.VideoExtensions = properties.GetString(PROPERTY_VIDEO_EXTS, "")
+	cd.AudioExtensions = properties.GetString(PROPERTY_AUDIO_EXTS, "")
 
 	templateConfig.Execute(w, cd)
 }

@@ -56,13 +56,13 @@
             </div>
             <div data-role="content">
                 <ul data-role="listview" data-theme="a" data-icon="gear">
-                    <li><a href="browse?p={{ .ParentDir }}">Back to {{ .ParentDir }}</a></li>
+                    <li><a href="browse?p={{ .ParentDir }}" data-transition="none">Back to {{ .ParentDir }}</a></li>
                 </ul>
                 <p/>
                 <ul id="directories" data-role="listview" data-theme="c" data-icon="gear">
                     {{ $RequestPath := .RequestPath }}
                     {{ range .Directories }}
-                        <li><a href="browse?p={{ $RequestPath }}/{{ . }}" data-transition="slide"><img src="/static/images/folder.png" class="ui-li-icon"/>{{ . }}</a></li>
+                        <li><a href="browse?p={{ $RequestPath }}/{{ . }}" data-transition="none"><img src="/static/images/folder.png" class="ui-li-icon"/>{{ . }}</a></li>
                     {{ end }}
                 </ul>
                 <p/>
