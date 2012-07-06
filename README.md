@@ -57,17 +57,16 @@ Try invoking the binary:
 
 `./bin/wasp`
 
-This will create the initial configuration in `${HOME}/.wasp/config.json`. This configuration
+This will create the initial configuration in `${HOME}/.wasp/wasp.properties`. This configuration
 sets a few properties as follows:
 
 * Mplayer fifo pipe: `/tmp/mplayer.fifo`
 * Media directory: `/` (root)
 * Bind address: `:8080`. This will bind the webserver to port 8080 on the local host.
+* Allowed/listable audio/video file extensions.
 
-Make a FIFO (named pipe) where Wasp should send its commands to. Note that this should be the same
-FIFO you specified in the config file. For defaults:
-
-`mkfifo /tmp/mplayer.fifo`
+Once Wasp is started, a FIFO will automatically be created in the configured path (if you have create/write
+permissions, of course).
 
 Last but not least, start Mplayer in slave mode, with the input to be from the FIFO:
 
@@ -78,7 +77,12 @@ This is not a necessity though, but something to consider.
 
 After this, you should have two processes running: mplayer and wasp. 
 
-Try opening up a browser to the host where Wasp is running, e.g. http://localhost:8080/index . 
+Try opening up a browser to the host where Wasp is running, e.g. http://localhost:8080/. You'll see
+web interface as follows:
+
+![The control page](http://krpors.github.com/wasp/img/wasp-control.png "Control page in Chrome")
+![Browsing page](http://krpors.github.com/wasp/img/wasp-browse.png "Browsing in Chrome")
+![Configuration page](http://krpors.github.com/wasp/img/wasp-config.png "Configuration in Chrome")
 
 # Implementation
 
@@ -99,6 +103,4 @@ Just some notes for development.
 
 * [Slave mode Mplayer](http://www.mplayerhq.hu/DOCS/HTML/en/MPlayer.html#slave-mode)
 * [Slave mode commands](http://www.mplayerhq.hu/DOCS/tech/slave.txt)
-* Use a named pipe to issue commands (mkfifo)
 * ``mplayer -noconfig all -noconsolecontrols -quiet -idle -slave -fs -zoom -input file=/tmp/mplayer.fifo``
-* Template language of Go (poorly documented), find some more [here](http://jan.newmarch.name/go/template/chapter-template.html)
