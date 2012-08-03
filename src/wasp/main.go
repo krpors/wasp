@@ -23,6 +23,8 @@ var extensionsAudio AllowedExtensions
 
 //================================================================================
 
+// This function just simply outputs the IP addresses for debugging purposes, or
+// to just quickly view on what IP WASP is being listening on. 
 func logMachineIPAddresses() {
 	_, _ = os.Hostname()
 	interfaces, err := net.Interfaces()
@@ -52,11 +54,7 @@ func logMachineIPAddresses() {
 // This function initializes the application with all its properties. Will
 // re-read configuration files if necessary.
 func initialize() {
-}
-
-// Entry point. Start it up.
-func main() {
-	log.Println("Wasp starting")
+	log.Println("Initializing")
 
 	properties = make(Properties)
 	propFile := properties.DefFileName()
@@ -80,12 +78,21 @@ func main() {
 		log.Fatalf("Cannot forcefully create necessary FIFO: ", ferr)
 	}
 
-	logMachineIPAddresses()
-
 	extensionsVideo = make(AllowedExtensions)
 	extensionsVideo.Parse(properties.GetString(PROPERTY_VIDEO_EXTS, ""))
 	extensionsAudio = make(AllowedExtensions)
 	extensionsAudio.Parse(properties.GetString(PROPERTY_AUDIO_EXTS, ""))
+
+	log.Println("Initializiation done!")
+}
+
+// Entry point. Start it up.
+func main() {
+	log.Println("Wasp starting")
+
+	logMachineIPAddresses()
+
+	initialize()
 
 	log.Printf("Media directory is %s", properties.GetString(PROPERTY_MEDIA_DIR, "/"))
 	log.Printf("Starting to listen on '%s'", properties.GetString(PROPERTY_BIND_ADDRESS, ":8080"))

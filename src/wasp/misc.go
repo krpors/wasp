@@ -79,7 +79,6 @@ func getDirectoryList(requestPath string) (DirListData, error) {
 		}
 
 		if fi.IsDir() {
-			//dirList.PushBack(fi.Name())
 			dld.Directories = append(dld.Directories, fi.Name())
 		} else {
 			// only allow certain kind of extensions.

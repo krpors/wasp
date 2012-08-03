@@ -162,5 +162,8 @@ func handlerSetConfig(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Settings saved")
 
+	// after saving settings, reinitialize.
+	initialize()
+
 	handlerConfig(w, r)
 }
